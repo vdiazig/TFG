@@ -84,7 +84,7 @@ public class ItemManager : MonoBehaviour
 
         GameObject[] prefabs = Resources.LoadAll<GameObject>("Prefabs/Items/Reciclable");
         itemPrefabs = new List<GameObject>(prefabs);
-        Debug.Log("Se han cargado " + itemPrefabs.Count + " ítems.");
+        //Debug.Log("Se han cargado " + itemPrefabs.Count + " ítems.");
     }
 
     // Método para cargar todos los prefabs de máquinas
@@ -94,7 +94,7 @@ public class ItemManager : MonoBehaviour
 
         GameObject[] prefabs = Resources.LoadAll<GameObject>("Prefabs/Items/Machines");
         machinePrefabs = new List<GameObject>(prefabs);
-        Debug.Log("Se han cargado " + machinePrefabs.Count + " máquinas.");
+        //Debug.Log("Se han cargado " + machinePrefabs.Count + " máquinas.");
     }
 
     // Método para cargar todos los prefabs reciclables
@@ -104,7 +104,7 @@ public class ItemManager : MonoBehaviour
         
         GameObject[] prefabs = Resources.LoadAll<GameObject>("Prefabs/Items/Recycled");
         recycledPrefabs = new List<GameObject>(prefabs);
-        Debug.Log("Se han cargado " + recycledPrefabs.Count + " reciclados.");
+        //Debug.Log("Se han cargado " + recycledPrefabs.Count + " reciclados.");
     }
 
     // Método para cargar todos los prefabs de enemigos
@@ -114,7 +114,7 @@ public class ItemManager : MonoBehaviour
 
         GameObject[] prefabs = Resources.LoadAll<GameObject>("Prefabs/Enemies");
         enemyPrefabs = new List<GameObject>(prefabs);
-        Debug.Log("Se han cargado " + enemyPrefabs.Count + " enemigos.");
+        //Debug.Log("Se han cargado " + enemyPrefabs.Count + " enemigos.");
     }
 
     // Método para cargar todos los prefabs de jefes
@@ -124,7 +124,7 @@ public class ItemManager : MonoBehaviour
 
         GameObject[] prefabs = Resources.LoadAll<GameObject>("Prefabs/Bosses");
         bossPrefabs = new List<GameObject>(prefabs);
-        Debug.Log("Se han cargado " + bossPrefabs.Count + " jefes.");
+        //Debug.Log("Se han cargado " + bossPrefabs.Count + " jefes.");
     }
 
     
