@@ -1,15 +1,10 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 using System.Text.RegularExpressions;
-
 
 public class PlayFabLogin : MonoBehaviour
 {
     private IPlayFabService playFabService;
-
-    [Header("Feedback message user")]
-    public TMP_Text feedbackText;
 
     [Header("Login Inputs")]
     public TMP_InputField loginInputField;
@@ -21,19 +16,17 @@ public class PlayFabLogin : MonoBehaviour
     public TMP_InputField passwordInputRegister;
     public TMP_InputField passwordConfirmInputRegister;
 
-
-
     private void Start()
     {
         playFabService = new PlayFabService();
     }
 
-     // Método para iniciar sesión con email o username y contraseña
+    //_____ LOGIN DE USUARIO 
+    // Método para iniciar sesión con email o username y contraseña
     public void LoginWithEmailOrUsername()
     {
         string loginInput = loginInputField.text;
 
-        // Determinamos si es un email o un nombre de usuario
         if (IsValidEmail(loginInput))
         {
             playFabService.LoginWithEmail(loginInput, passwordInputSesion.text, OnLoginSuccess, OnLoginFailure);
@@ -44,18 +37,31 @@ public class PlayFabLogin : MonoBehaviour
         }
     }
 
-    // Método para validar si el texto es un email
-    private bool IsValidEmail(string email)
+  
+
+    // Callback en caso de inicio de sesión exitoso
+    private void OnLoginSuccess()
     {
-        return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        NotificationManager.Instance.ShowNotification("Inicio de sesión exitoso", NotificationType.Success, 3);
+        Debug.Log("Login successful!");
     }
 
+    // Callback en caso de fallo de inicio de sesión
+    private void OnLoginFailure(string errorReport)
+    {
+        NotificationManager.Instance.ShowNotification("Usuario o contraseña incorrectos", NotificationType.Warning);
+        Debug.LogWarning("Login failed!");
+        Debug.LogError(errorReport);
+    }
+
+
+    //_____ REGISTRO DE USUARIO 
     // Método para registrar un nuevo usuario
     public void RegisterWithEmail()
     {
         if (passwordInputRegister.text != passwordConfirmInputRegister.text)
         {
-            feedbackText.text = "Las contraseñas no coinciden.";
+            NotificationManager.Instance.ShowNotification("Las contraseñas no coinciden.", NotificationType.Warning);
             return;
         }
 
@@ -69,53 +75,27 @@ public class PlayFabLogin : MonoBehaviour
     }
 
 
-    // Callback en caso de inicio de sesión exitoso
-    private void OnLoginSuccess()
-    {
-        feedbackText.text = "Inicio de sesión exitoso";
-        Debug.Log("Login successful!");
-    }
-
-    // Callback en caso de fallo de inicio de sesión
-    private void OnLoginFailure(string errorReport)
-    {
-        feedbackText.text = "Usuario o contraseña incorrectos";
-        Debug.LogWarning("Login failed!");
-        Debug.LogError(errorReport);
-    }
-
     // Callback en caso de registro exitoso
     private void OnRegisterSuccess()
     {
-        feedbackText.text = "Registro exitoso";
+        NotificationManager.Instance.ShowNotification("Registro exitoso", NotificationType.Success, 4);
         Debug.Log("Registration successful!");
     }
 
     // Callback en caso de fallo en el registro
     private void OnRegisterFailure(string errorReport)
     {
-        feedbackText.text = "Error al registrar: " + errorReport;
+        NotificationManager.Instance.ShowNotification("Error al registrar: " + errorReport, NotificationType.Error);
         Debug.LogWarning("Registration failed!");
         Debug.LogError(errorReport);
     }
 
+
     
-    // Callback en caso de recuperación exitosa
-    private void OnRecoverPasswordSuccess()
-    {
-        feedbackText.text = "Se ha enviado un correo de recuperación.";
-        Debug.Log("Password recovery email sent successfully!");
-    }
 
-    // Callback en caso de fallo la recuperación de contraseña
-    private void OnRecoverPasswordFailure(string errorReport)
-    {
-        feedbackText.text = "Error al enviar el correo de recuperación.";
-        Debug.LogWarning("Password recovery failed!");
-        Debug.LogError(errorReport);
-    }
 
-    // Método para recuperar contraseña
+    //_____ RECUPERACIÓN DE CONTRASEÑA
+    // Funcion para recuperar la contraseña
     public void RecoverPassword()
     {
         string email = loginInputField.text;
@@ -126,12 +106,32 @@ public class PlayFabLogin : MonoBehaviour
         }
         else
         {
-            feedbackText.text = "Por favor, introduce un correo electrónico válido.";
+            NotificationManager.Instance.ShowNotification("Por favor, introduce un correo electrónico válido.", NotificationType.Warning);
         }
+    }
+
+    // Callback en caso de recuperación exitosa de contraseña
+    private void OnRecoverPasswordSuccess()
+    {
+        NotificationManager.Instance.ShowNotification("Se ha enviado un correo de recuperación.", NotificationType.Success);
+        Debug.Log("Password recovery email sent successfully!");
+    }
+
+    // Callback en caso de fallo la recuperación de contraseña
+    private void OnRecoverPasswordFailure(string errorReport)
+    {
+        NotificationManager.Instance.ShowNotification("Error al enviar el correo de recuperación.", NotificationType.Warning);
+        Debug.LogWarning("Password recovery failed!");
+        Debug.LogError(errorReport);
     }
 
 
 
+    //_____ OTROS MÉTODOS 
+    // Método para validar si el texto es un email
+    private bool IsValidEmail(string email)
+    {
+        return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+    }
+
 }
-
-

@@ -7,6 +7,7 @@ public class RecyclableItem : MonoBehaviour
     // Attributes
     public int id;                  // Id del item
     public string type;              // Material type (plastic, metal, etc.)
+    public string nameItem;         // Name item
     public float economicValue;      // Economic value of the recyclable item
     public Sprite sprite;            // Visual representation of the item
     public AudioClip audioClip;      // Sound to play when the item is collected
