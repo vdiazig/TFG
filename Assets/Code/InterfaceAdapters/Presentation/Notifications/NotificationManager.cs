@@ -1,7 +1,7 @@
 using UnityEngine;
-using System.Collections.Generic;
+using System;
 
-public class NotificationManager : MonoBehaviour
+public class NotificationManager : MonoBehaviour, INotification
 {
     public static NotificationManager Instance { get; private set; }
     
@@ -26,26 +26,37 @@ public class NotificationManager : MonoBehaviour
     }
 
 
+    //______ NOTIFICACIONES A PANTALLA COMPLETA
+    public void NotificationScreen(string title, Sprite image, string body, Action nextAction)
+    {
+        Debug.Log("Screen Notification Open");
+        notificationCanvasInstance.NotificationScreen(title, image, body, nextAction); 
+
+    }
+
+
+
+
     //______ NOTIFICACIONES PANEL LATERAL IZQUIERDO
         // Mostrar notificación en el panel lateral con imagen y nombre
-        public void ShowNotification(Sprite image, string name)
+        public void NotificationLeft(Sprite image, string name)
         {
-            notificationCanvasInstance.AddLeftNotification(image, name);
+            notificationCanvasInstance.NotificationLeft(image, name);
         }
 
 
     //______ NOTIFICACIONES PARTE SUPERIOR
     // Mostrar una notificación en la parte superior
-    public void ShowNotification(string message, NotificationType type)
+    public void NotificationUp(string message, NotificationType type)
     {
-        notificationCanvasInstance.Notification(message, type); 
+        notificationCanvasInstance.NotificationUp(message, type); 
     }
 
 
     // Mostrar una notificación en la parte superior con cierre automático
-    public void ShowNotification(string message, NotificationType type, float duration)
+    public void NotificationUp(string message, NotificationType type, float duration)
     {
-        notificationCanvasInstance.Notification(message, type);
+        notificationCanvasInstance.NotificationUp(message, type);
         
         // Cancelar cualquier cierre programado anterior y programar el nuevo cierre
         CancelInvoke("CloseNotificationUp");
@@ -53,8 +64,8 @@ public class NotificationManager : MonoBehaviour
     }
 
      // Cerrar el panel de notificaciones superior
-    public void CloseNotificationUp()
+    public void NotificationUpClose()
     {
-        notificationCanvasInstance.Notification("", NotificationType.CloseUp);
+        notificationCanvasInstance.NotificationUp("", NotificationType.CloseUp);
     }
 }

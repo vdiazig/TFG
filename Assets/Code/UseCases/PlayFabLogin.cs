@@ -5,23 +5,38 @@ using System.Text.RegularExpressions;
 public class PlayFabLogin : MonoBehaviour
 {
     private IPlayFabService playFabService;
+    private INotification notification;  
 
     [Header("Login Inputs")]
-    public TMP_InputField loginInputField;
-    public TMP_InputField passwordInputSesion;
+    [SerializeField] public GameObject loginObject;
+    private bool isLogin = true;
+    [SerializeField] public TMP_InputField loginInputField;
+    [SerializeField] public TMP_InputField passwordInputSesion;
     
     [Header("Register Inputs")]
-    public TMP_InputField nameInputRegister;
-    public TMP_InputField emailInputSesionRegister;
-    public TMP_InputField passwordInputRegister;
-    public TMP_InputField passwordConfirmInputRegister;
+    [SerializeField] public GameObject registerObject;
+    [SerializeField] public TMP_InputField nameInputRegister;
+    [SerializeField] public TMP_InputField emailInputSesionRegister;
+    [SerializeField] public TMP_InputField passwordInputRegister;
+    [SerializeField] public TMP_InputField passwordConfirmInputRegister;
+
+    // Constructor para la inyección de dependencias
+    public PlayFabLogin(IPlayFabService playFabService, INotification notification)
+    {
+        this.playFabService = playFabService;
+        this.notification = notification;
+    }
 
     private void Start()
     {
+        // Inicia los servicios solo si no se han proporcionado en el constructor (para soporte en inspector)
         playFabService = new PlayFabService();
+        notification = NotificationManager.Instance;
+
+        CleanInputsRegister();
+        CleanInputsSesion();
     }
 
-    //_____ LOGIN DE USUARIO 
     // Método para iniciar sesión con email o username y contraseña
     public void LoginWithEmailOrUsername()
     {
@@ -37,31 +52,34 @@ public class PlayFabLogin : MonoBehaviour
         }
     }
 
-  
-
     // Callback en caso de inicio de sesión exitoso
     private void OnLoginSuccess()
     {
-        NotificationManager.Instance.ShowNotification("Inicio de sesión exitoso", NotificationType.Success, 3);
+        notification.NotificationUp("Inicio de sesión exitoso", NotificationType.Success, 3);
         Debug.Log("Login successful!");
+        CleanInputsSesion();
     }
 
     // Callback en caso de fallo de inicio de sesión
     private void OnLoginFailure(string errorReport)
     {
-        NotificationManager.Instance.ShowNotification("Usuario o contraseña incorrectos", NotificationType.Warning);
+        notification.NotificationUp("Usuario o contraseña incorrectos", NotificationType.Warning);
         Debug.LogWarning("Login failed!");
         Debug.LogError(errorReport);
     }
 
+    // Limpia los inputs de inicio de sesión
+    private void CleanInputsSesion(){
+        loginInputField.text = "";
+        passwordInputSesion.text = "";
+    }
 
-    //_____ REGISTRO DE USUARIO 
     // Método para registrar un nuevo usuario
     public void RegisterWithEmail()
     {
         if (passwordInputRegister.text != passwordConfirmInputRegister.text)
         {
-            NotificationManager.Instance.ShowNotification("Las contraseñas no coinciden.", NotificationType.Warning);
+            notification.NotificationUp("Las contraseñas no coinciden.", NotificationType.Warning);
             return;
         }
 
@@ -74,27 +92,31 @@ public class PlayFabLogin : MonoBehaviour
         );
     }
 
-
     // Callback en caso de registro exitoso
     private void OnRegisterSuccess()
     {
-        NotificationManager.Instance.ShowNotification("Registro exitoso", NotificationType.Success, 4);
+        notification.NotificationUp("Registro exitoso", NotificationType.Success, 4);
         Debug.Log("Registration successful!");
+        CleanInputsRegister();
+        ChangeWindowSesion();
     }
 
     // Callback en caso de fallo en el registro
     private void OnRegisterFailure(string errorReport)
     {
-        NotificationManager.Instance.ShowNotification("Error al registrar: " + errorReport, NotificationType.Error);
+        notification.NotificationUp("Error al registrar", NotificationType.Error);
         Debug.LogWarning("Registration failed!");
         Debug.LogError(errorReport);
     }
 
+    // Limpia los inputs de registro
+    private void CleanInputsRegister(){
+        nameInputRegister.text = "";
+        emailInputSesionRegister.text = "";
+        passwordInputRegister.text = "";
+        passwordConfirmInputRegister.text = "";
+    }
 
-    
-
-
-    //_____ RECUPERACIÓN DE CONTRASEÑA
     // Funcion para recuperar la contraseña
     public void RecoverPassword()
     {
@@ -106,32 +128,37 @@ public class PlayFabLogin : MonoBehaviour
         }
         else
         {
-            NotificationManager.Instance.ShowNotification("Por favor, introduce un correo electrónico válido.", NotificationType.Warning);
+            notification.NotificationUp("Por favor, introduce un correo electrónico válido.", NotificationType.Warning);
         }
     }
 
     // Callback en caso de recuperación exitosa de contraseña
     private void OnRecoverPasswordSuccess()
     {
-        NotificationManager.Instance.ShowNotification("Se ha enviado un correo de recuperación.", NotificationType.Success);
+        notification.NotificationUp("Se ha enviado un correo de recuperación.", NotificationType.Success);
         Debug.Log("Password recovery email sent successfully!");
     }
 
-    // Callback en caso de fallo la recuperación de contraseña
+    // Callback en caso de fallo en la recuperación de contraseña
     private void OnRecoverPasswordFailure(string errorReport)
     {
-        NotificationManager.Instance.ShowNotification("Error al enviar el correo de recuperación.", NotificationType.Warning);
+        notification.NotificationUp("Error al enviar el correo de recuperación.", NotificationType.Warning);
         Debug.LogWarning("Password recovery failed!");
         Debug.LogError(errorReport);
     }
 
-
-
-    //_____ OTROS MÉTODOS 
     // Método para validar si el texto es un email
     private bool IsValidEmail(string email)
     {
         return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
     }
 
+    // Cambia entre ventana de login y registro
+    public void ChangeWindowSesion()
+    {
+        isLogin = !isLogin;
+
+        loginObject.SetActive(isLogin);
+        registerObject.SetActive(!isLogin);
+    }
 }

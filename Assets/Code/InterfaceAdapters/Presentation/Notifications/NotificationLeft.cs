@@ -2,7 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
-public class NotificationElement : MonoBehaviour
+public class NotificationLeft : MonoBehaviour
 {
     [SerializeField] private TMP_Text elementNameText;
     [SerializeField] private Image elementImage;
@@ -26,9 +26,9 @@ public class NotificationElement : MonoBehaviour
         // Notificar al canvas para eliminar de la lista, y luego destruir este objeto
         if (notificationCanvas != null)
         {
-            notificationCanvas.RemoveNotification(gameObject);
+            notificationCanvas.NotificationLeftClose(gameObject);
         }
 
-        Destroy(gameObject); // Asegúrate de que este Destroy esté después de RemoveNotification
+        Destroy(gameObject); 
     }
 }
