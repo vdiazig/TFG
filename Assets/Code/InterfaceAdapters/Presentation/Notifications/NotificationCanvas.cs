@@ -7,20 +7,17 @@ public class NotificationCanvas : MonoBehaviour
 {
     [Header("Up Notification")]
     [SerializeField] private GameObject upNotification;
-    [SerializeField] private TMP_Text messageText; 
-
-    // Colores para diferentes tipos de mensajes
-    [SerializeField] private Color successColor = Color.green;
-    [SerializeField] private Color warningColor = Color.yellow;
-    [SerializeField] private Color errorColor = Color.red;
+    [SerializeField] private NotificationUp notificationUpPrefab;
+    private int maxVisibleNotificationsUp = 1;
+    [SerializeField] private List<GameObject> activeNotificationsUp = new List<GameObject>(); 
 
 
     [Header("Left Notification")]
     [SerializeField] private GameObject leftNotification;
-    [SerializeField] private Transform container;
+    [SerializeField] private Transform leftContainer;
     [SerializeField] private NotificationLeft notificationLeftPrefab; 
-    private int maxVisibleNotifications = 7;
-    [SerializeField] private List<GameObject> activeNotifications = new List<GameObject>(); 
+    private int maxVisibleNotificationsLeft = 7;
+    [SerializeField] private List<GameObject> activeNotificationsLeft = new List<GameObject>(); 
 
     
     [Header("Screen Notification")]
@@ -32,11 +29,30 @@ public class NotificationCanvas : MonoBehaviour
 
     private void Start()
     {
+       NotificationClean();
+    }
+
+    public void NotificationClean()
+    {
         // Oculta todas las notificaciones
         upNotification.SetActive(false);
         leftNotification.SetActive(false);
         screenNotification.SetActive(false);
+        
+        // Destruir todos los objetos en activeNotificationsLeft
+        activeNotificationsLeft.ForEach(notification => { if (notification != null) Destroy(notification); });
+
+        // Destruir todos los objetos en activeNotificationsUp
+        activeNotificationsUp.ForEach(notification => { if (notification != null) Destroy(notification); });
+
+        // Limpiar las listas
+        activeNotificationsLeft.Clear();
+        activeNotificationsUp.Clear();
+
+        Debug.Log("All notifications removed");
     }
+
+
 
     //______ NOTIFICACIONES A PANTALLA COMPLETA
     public void NotificationScreen (string title, Sprite image, string body, Action nextAction)
@@ -56,14 +72,14 @@ public class NotificationCanvas : MonoBehaviour
         leftNotification.SetActive(true);
 
         // Crear nueva notificación y añadirla al contenedor
-        NotificationLeft newElement = Instantiate(notificationLeftPrefab, container);
+        NotificationLeft newElement = Instantiate(notificationLeftPrefab, leftContainer);
         newElement.Initialize(image, name, this);
-        activeNotifications.Add(newElement.gameObject);
+        activeNotificationsLeft.Add(newElement.gameObject);
 
         // Eliminar el más antiguo si excede el límite
-        if (activeNotifications.Count > maxVisibleNotifications)
+        if (activeNotificationsLeft.Count > maxVisibleNotificationsLeft)
         {
-            NotificationLeftClose(activeNotifications[0]);
+            NotificationLeftClose(activeNotificationsLeft[0]);
         }
 
         newElement.AutoDestroy(2f); // Se eliminará automáticamente después de 2 segundos
@@ -72,12 +88,12 @@ public class NotificationCanvas : MonoBehaviour
     // Método para eliminar notificaciones y actualizar la lista
     public void NotificationLeftClose(GameObject notification)
     {
-        if (activeNotifications.Contains(notification))
+        if (activeNotificationsLeft.Contains(notification))
         {
-            activeNotifications.Remove(notification);
+            activeNotificationsLeft.Remove(notification);
         }
 
-        if (activeNotifications.Count == 0)
+        if (activeNotificationsLeft.Count == 0)
         {
             leftNotification.SetActive(false);
         }
@@ -89,33 +105,34 @@ public class NotificationCanvas : MonoBehaviour
     // Método para mostrar un mensaje según el tipo de notificación
     public void NotificationUp(string message, NotificationType type)
     {
-        messageText.text = message;
+        upNotification.SetActive(true);
 
-        // Cambia el color según el tipo de notificación
-        switch (type)
+        // Crear nueva notificación y añadirla al contenedor
+        NotificationUp newElement = Instantiate(notificationUpPrefab, upNotification.transform);
+        newElement.Initialize(message, type, this);
+        activeNotificationsUp.Add(newElement.gameObject);
+
+        // Eliminar el más antiguo si excede el límite
+        if (activeNotificationsUp.Count > maxVisibleNotificationsUp)
         {
-            case NotificationType.CloseUp:
-                NotificationUpClose();
-                break;
-            case NotificationType.Success:
-                messageText.color = successColor;
-                break;
-            case NotificationType.Warning:
-                messageText.color = warningColor;
-                break;
-            case NotificationType.Error:
-                messageText.color = errorColor;
-                break;
-
+            NotificationUpClose(activeNotificationsUp[0]);
+            
         }
-
-        upNotification.SetActive(true); // Muestra el panel de notificación
     }
 
-    // Método para ocultar el panel de notificación superior
-    public void NotificationUpClose()
+    // Método para eliminar notificaciones superiores
+    public void NotificationUpClose(GameObject notification)
     {
-        upNotification.SetActive(false);
+        if (activeNotificationsUp.Contains(notification))
+        {
+            notification.GetComponent<NotificationUp> ().AutoDestroy(0);
+            activeNotificationsUp.Remove(notification);
+        }
+
+        if (activeNotificationsUp.Count == 0)
+        {
+            upNotification.SetActive(false);
+        }
     }
 
 }

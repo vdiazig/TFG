@@ -5,8 +5,8 @@ public class NotificationManager : MonoBehaviour, INotification
 {
     public static NotificationManager Instance { get; private set; }
     
-    [SerializeField] private NotificationCanvas notificationCanvasPrefab; 
-    private NotificationCanvas notificationCanvasInstance; 
+    [SerializeField] private NotificationCanvas _notificationCanvasPrefab; 
+    private NotificationCanvas _notificationCanvasInstance; 
     
 
     // Única instancia del objeto que no se destruye entre escenas
@@ -21,8 +21,13 @@ public class NotificationManager : MonoBehaviour, INotification
             Instance = this;
 
             // Instanciamos el prefab y lo colocamos como hijo de este GameObject (Notification)
-            notificationCanvasInstance = Instantiate(notificationCanvasPrefab, transform);
+            _notificationCanvasInstance = Instantiate(_notificationCanvasPrefab, transform);
         }
+    }
+
+    public void NotificationClean(){
+        
+        _notificationCanvasInstance.NotificationClean();
     }
 
 
@@ -30,10 +35,9 @@ public class NotificationManager : MonoBehaviour, INotification
     public void NotificationScreen(string title, Sprite image, string body, Action nextAction)
     {
         Debug.Log("Screen Notification Open");
-        notificationCanvasInstance.NotificationScreen(title, image, body, nextAction); 
+        _notificationCanvasInstance.NotificationScreen(title, image, body, nextAction); 
 
     }
-
 
 
 
@@ -41,31 +45,22 @@ public class NotificationManager : MonoBehaviour, INotification
         // Mostrar notificación en el panel lateral con imagen y nombre
         public void NotificationLeft(Sprite image, string name)
         {
-            notificationCanvasInstance.NotificationLeft(image, name);
+            _notificationCanvasInstance.NotificationLeft(image, name);
         }
+
 
 
     //______ NOTIFICACIONES PARTE SUPERIOR
     // Mostrar una notificación en la parte superior
     public void NotificationUp(string message, NotificationType type)
     {
-        notificationCanvasInstance.NotificationUp(message, type); 
+        _notificationCanvasInstance.NotificationUp(message, type); 
     }
 
-
-    // Mostrar una notificación en la parte superior con cierre automático
-    public void NotificationUp(string message, NotificationType type, float duration)
-    {
-        notificationCanvasInstance.NotificationUp(message, type);
-        
-        // Cancelar cualquier cierre programado anterior y programar el nuevo cierre
-        CancelInvoke("CloseNotificationUp");
-        Invoke("CloseNotificationUp", duration);
-    }
 
      // Cerrar el panel de notificaciones superior
     public void NotificationUpClose()
     {
-        notificationCanvasInstance.NotificationUp("", NotificationType.CloseUp);
+        _notificationCanvasInstance.NotificationUp("", NotificationType.CloseUp);
     }
 }

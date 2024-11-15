@@ -4,15 +4,15 @@ using UnityEngine.UI;
 
 public class NotificationLeft : MonoBehaviour
 {
-    [SerializeField] private TMP_Text elementNameText;
-    [SerializeField] private Image elementImage;
-    private NotificationCanvas notificationCanvas; // Referencia al canvas para informar cuando se destruye
+    [SerializeField] private TMP_Text _elementNameText;
+    [SerializeField] private Image _elementImage;
+    private NotificationCanvas _notificationCanvas; // Referencia al canvas para informar cuando se destruye
 
     public void Initialize(Sprite image, string name, NotificationCanvas canvas)
     {
-        elementImage.sprite = image;
-        elementNameText.text = name;
-        notificationCanvas = canvas; // Asigna la referencia del canvas
+        _elementImage.sprite = image;
+        _elementNameText.text = name;
+        _notificationCanvas = canvas; // Asigna la referencia del canvas
     }
 
     // Llamada para autodestruir el elemento después de un tiempo y actualizar la lista
@@ -24,9 +24,9 @@ public class NotificationLeft : MonoBehaviour
     private void DestroyElement()
     {
         // Notificar al canvas para eliminar de la lista, y luego destruir este objeto
-        if (notificationCanvas != null)
+        if (_notificationCanvas != null)
         {
-            notificationCanvas.NotificationLeftClose(gameObject);
+            _notificationCanvas.NotificationLeftClose(gameObject);
         }
 
         Destroy(gameObject); 

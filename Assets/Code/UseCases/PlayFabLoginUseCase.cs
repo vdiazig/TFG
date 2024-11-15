@@ -2,16 +2,23 @@ using UnityEngine;
 using TMPro;
 using System.Text.RegularExpressions;
 
-public class PlayFabLogin : MonoBehaviour
+public class PlayFabLoginUseCase : MonoBehaviour
 {
-    private IPlayFabService playFabService;
-    private INotification notification;  
+    private IPlayFabService _playFabService;
+    private INotification _notification;  
+    [SerializeField] private ManagerUser managerUser;
+
+    [Header("Navegation")]
+    [SerializeField] public GameObject menuLogin;
+    [SerializeField] public GameObject menuTitle;
+
 
     [Header("Login Inputs")]
     [SerializeField] public GameObject loginObject;
-    private bool isLogin = true;
+    private bool _isLogin = true;
     [SerializeField] public TMP_InputField loginInputField;
     [SerializeField] public TMP_InputField passwordInputSesion;
+
     
     [Header("Register Inputs")]
     [SerializeField] public GameObject registerObject;
@@ -20,21 +27,20 @@ public class PlayFabLogin : MonoBehaviour
     [SerializeField] public TMP_InputField passwordInputRegister;
     [SerializeField] public TMP_InputField passwordConfirmInputRegister;
 
-    // Constructor para la inyección de dependencias
-    public PlayFabLogin(IPlayFabService playFabService, INotification notification)
-    {
-        this.playFabService = playFabService;
-        this.notification = notification;
-    }
-
     private void Start()
     {
-        // Inicia los servicios solo si no se han proporcionado en el constructor (para soporte en inspector)
-        playFabService = new PlayFabService();
-        notification = NotificationManager.Instance;
+        _playFabService = new PlayFabService(); 
+        _notification = NotificationManager.Instance; 
 
         CleanInputsRegister();
         CleanInputsSesion();
+    }
+
+    // Navegación entre menús
+    public void toTitleMenu()
+    {
+        menuLogin.SetActive(false);
+        menuTitle.SetActive(true);
     }
 
     // Método para iniciar sesión con email o username y contraseña
@@ -44,26 +50,30 @@ public class PlayFabLogin : MonoBehaviour
 
         if (IsValidEmail(loginInput))
         {
-            playFabService.LoginWithEmail(loginInput, passwordInputSesion.text, OnLoginSuccess, OnLoginFailure);
+            _playFabService.LoginWithEmail(loginInput, passwordInputSesion.text, OnLoginSuccess, OnLoginFailure);
         }
         else
         {
-            playFabService.LoginWithUsername(loginInput, passwordInputSesion.text, OnLoginSuccess, OnLoginFailure);
+            _playFabService.LoginWithUsername(loginInput, passwordInputSesion.text, OnLoginSuccess, OnLoginFailure);
         }
     }
 
+
     // Callback en caso de inicio de sesión exitoso
-    private void OnLoginSuccess()
+    private void OnLoginSuccess(UserProfile profile)
     {
-        notification.NotificationUp("Inicio de sesión exitoso", NotificationType.Success, 3);
+        managerUser.SetUserProfile(profile); 
+        _notification.NotificationUp("Inicio de sesión exitoso", NotificationType.Success);
         Debug.Log("Login successful!");
+        toTitleMenu();
         CleanInputsSesion();
     }
+
 
     // Callback en caso de fallo de inicio de sesión
     private void OnLoginFailure(string errorReport)
     {
-        notification.NotificationUp("Usuario o contraseña incorrectos", NotificationType.Warning);
+        _notification.NotificationUp("Usuario o contraseña incorrectos", NotificationType.Warning);
         Debug.LogWarning("Login failed!");
         Debug.LogError(errorReport);
     }
@@ -79,11 +89,11 @@ public class PlayFabLogin : MonoBehaviour
     {
         if (passwordInputRegister.text != passwordConfirmInputRegister.text)
         {
-            notification.NotificationUp("Las contraseñas no coinciden.", NotificationType.Warning);
+            _notification.NotificationUp("Las contraseñas no coinciden.", NotificationType.Warning);
             return;
         }
 
-        playFabService.RegisterWithEmail(
+        _playFabService.RegisterWithEmail(
             nameInputRegister.text, 
             emailInputSesionRegister.text, 
             passwordInputRegister.text, 
@@ -95,7 +105,7 @@ public class PlayFabLogin : MonoBehaviour
     // Callback en caso de registro exitoso
     private void OnRegisterSuccess()
     {
-        notification.NotificationUp("Registro exitoso", NotificationType.Success, 4);
+        _notification.NotificationUp("Registro exitoso", NotificationType.Success);
         Debug.Log("Registration successful!");
         CleanInputsRegister();
         ChangeWindowSesion();
@@ -104,7 +114,7 @@ public class PlayFabLogin : MonoBehaviour
     // Callback en caso de fallo en el registro
     private void OnRegisterFailure(string errorReport)
     {
-        notification.NotificationUp("Error al registrar", NotificationType.Error);
+        _notification.NotificationUp("Error al registrar", NotificationType.Error);
         Debug.LogWarning("Registration failed!");
         Debug.LogError(errorReport);
     }
@@ -124,25 +134,25 @@ public class PlayFabLogin : MonoBehaviour
 
         if (IsValidEmail(email))
         {
-            playFabService.RecoverPassword(email, OnRecoverPasswordSuccess, OnRecoverPasswordFailure);
+            _playFabService.RecoverPassword(email, OnRecoverPasswordSuccess, OnRecoverPasswordFailure);
         }
         else
         {
-            notification.NotificationUp("Por favor, introduce un correo electrónico válido.", NotificationType.Warning);
+            _notification.NotificationUp("Por favor, introduce un correo electrónico válido.", NotificationType.Warning);
         }
     }
 
     // Callback en caso de recuperación exitosa de contraseña
     private void OnRecoverPasswordSuccess()
     {
-        notification.NotificationUp("Se ha enviado un correo de recuperación.", NotificationType.Success);
+        _notification.NotificationUp("Se ha enviado un correo de recuperación.", NotificationType.Success);
         Debug.Log("Password recovery email sent successfully!");
     }
 
     // Callback en caso de fallo en la recuperación de contraseña
     private void OnRecoverPasswordFailure(string errorReport)
     {
-        notification.NotificationUp("Error al enviar el correo de recuperación.", NotificationType.Warning);
+        _notification.NotificationUp("Error al enviar el correo de recuperación.", NotificationType.Warning);
         Debug.LogWarning("Password recovery failed!");
         Debug.LogError(errorReport);
     }
@@ -156,9 +166,9 @@ public class PlayFabLogin : MonoBehaviour
     // Cambia entre ventana de login y registro
     public void ChangeWindowSesion()
     {
-        isLogin = !isLogin;
+        _isLogin = !_isLogin;
 
-        loginObject.SetActive(isLogin);
-        registerObject.SetActive(!isLogin);
+        loginObject.SetActive(_isLogin);
+        registerObject.SetActive(!_isLogin);
     }
 }

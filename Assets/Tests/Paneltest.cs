@@ -14,8 +14,9 @@ public class PanelTest : MonoBehaviour
         notification = NotificationManager.Instance;
     }
     public void newElement(){
-        //notification.NotificationLeft(elSprite, elName);
-        notification.NotificationScreen("titulo", elSprite, "CUERPO DE LA NOTIFICAION", aaa);
+        notification.NotificationLeft(elSprite, elName);
+        //notification.NotificationScreen("titulo", elSprite, "CUERPO DE LA NOTIFICAION", aaa);
+        
 
     }
 
