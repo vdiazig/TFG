@@ -4,6 +4,7 @@ public class TitleScreenController : MonoBehaviour
 {
     private ExitGameUseCase _exitGameUseCase;
     private INotification _notification;  
+    
     [SerializeField] public ManagerUser _managerUser;
 
     [SerializeField] public GameObject loginObject;
@@ -40,11 +41,13 @@ public class TitleScreenController : MonoBehaviour
     }
 
     // Cargar escena de juego
-    private void LoadGameScene()
+     private void LoadGameScene()
     {
-        Debug.Log("NEW SCENE");
         _notification.NotificationClean();
-        //UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
+        ManagerScenes.Instance.LoadScene("exp1-01", () => 
+        {
+            Debug.Log("Game scene exp1-01 loaded.");
+        });
     }
 
     // Mostrar panel de sesion y login

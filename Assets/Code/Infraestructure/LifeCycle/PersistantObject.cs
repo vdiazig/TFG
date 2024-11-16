@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public class PersistentManager : MonoBehaviour
+public class PersistantObject : MonoBehaviour
 {
     private void Awake()
     {
         // Verifica si ya existe otra instancia de este objeto
-        if (FindObjectsOfType<PersistentManager>().Length > 1)
+        if (FindObjectsOfType<PersistantObject>().Length > 1)
         {
             Destroy(gameObject); // Si existe otra instancia, destruye esta
             return;

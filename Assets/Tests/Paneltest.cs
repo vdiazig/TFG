@@ -1,23 +1,52 @@
-// NotificationElement.cs (sin cambios, solo asegurarse de que está configurado con el Initialize y AutoDestroy)
+// Script tests
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
 public class PanelTest : MonoBehaviour
 {
-    private INotification notification; 
+    private INotification _notification; 
 
     public Sprite elSprite;
+    public Sprite machineSprite;
     public string elName;
 
     void Start(){
-        notification = NotificationManager.Instance;
+        _notification = NotificationManager.Instance;
     }
-    public void newElement(){
-        notification.NotificationLeft(elSprite, elName);
-        //notification.NotificationScreen("titulo", elSprite, "CUERPO DE LA NOTIFICAION", aaa);
-        
 
+    public void TestLefNot(){
+        _notification.NotificationLeft(elSprite, elName);
+
+    }
+
+    public void TestScreenNot(){
+        _notification.NotificationScreen("Title", machineSprite, "Body _notification", closeNotifications);
+
+    }
+
+    public void TestUpNot(){
+        _notification.NotificationUp("System _notification", NotificationType.Success); 
+
+    }
+
+    public void TestLoadInit()
+    {
+        LoadGameScene();
+    }
+
+    private void closeNotifications()
+    {
+        _notification.NotificationClean();
+    }
+
+   private void LoadGameScene()
+    {
+        _notification.NotificationClean();
+        ManagerScenes.Instance.LoadScene("Init", () => 
+        {
+            Debug.Log("Game scene Init loaded.");
+        });
     }
 
     public void aaa()
