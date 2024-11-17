@@ -236,9 +236,6 @@ MonoBehaviour:
   upNotification: {fileID: 8998229942806738332}
   notificationUpPrefab: {fileID: 1621683689713611094, guid: f8b64a85eee234341b018b5d87c70a0e, type: 3}
   activeNotificationsUp: []
-  successColor: {r: 0, g: 1, b: 0, a: 1}
-  warningColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  errorColor: {r: 1, g: 0, b: 0, a: 1}
   leftNotification: {fileID: 3144409031942413102}
   leftContainer: {fileID: 7924996435270607317}
   notificationLeftPrefab: {fileID: 320833909964680056, guid: 63fc2f1cc5038d746802ac1a1c9aeeef, type: 3}
@@ -266,7 +263,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!114 &5866662881263798178
 MonoBehaviour:
