@@ -44,7 +44,7 @@ public class TitleScreenController : MonoBehaviour
      private void LoadGameScene()
     {
         _notification.NotificationClean();
-        ManagerScenes.Instance.LoadScene("test2", () => 
+        ManagerScenes.Instance.LoadScene("test2", true, () => 
         {
             Debug.Log("Game scene exp1-01 loaded.");
         });

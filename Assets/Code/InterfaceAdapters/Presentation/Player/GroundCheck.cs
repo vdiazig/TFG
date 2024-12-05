@@ -18,5 +18,10 @@ namespace Game.Player
                 position.z);
             return Physics.CheckSphere(spherePosition, groundRadius, groundMask);
         }
+
+        
+
+
+
     }
 }

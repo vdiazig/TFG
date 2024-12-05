@@ -43,7 +43,7 @@ public class PanelTest : MonoBehaviour
    private void LoadGameScene()
     {
         _notification.NotificationClean();
-        ManagerScenes.Instance.LoadScene("Init", () => 
+        ManagerScenes.Instance.LoadScene("Init", false, () => 
         {
             Debug.Log("Game scene Init loaded.");
         });

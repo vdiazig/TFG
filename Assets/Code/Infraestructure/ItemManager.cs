@@ -5,6 +5,8 @@ public class ItemManager : MonoBehaviour
 {
     // Lista pública de prefabs de ítems, máquinas, reciclables, enemigos y jefes
     public List<GameObject> itemPrefabs;
+    public List<GameObject> AttackObjectsPrefabs;
+    public List<GameObject> weaponPrefabs;
     public List<GameObject> machinePrefabs;
     public List<GameObject> recycledPrefabs;
     public List<GameObject> enemyPrefabs;
@@ -15,6 +17,7 @@ public class ItemManager : MonoBehaviour
     void Awake()
     {
         LoadAllItems();  
+        LoadAllAttackObjects();
         LoadAllMachines();
         LoadAllRecycled();
         LoadAllEnemies();
@@ -85,6 +88,16 @@ public class ItemManager : MonoBehaviour
         GameObject[] prefabs = Resources.LoadAll<GameObject>("Prefabs/Items/Reciclable");
         itemPrefabs = new List<GameObject>(prefabs);
         //Debug.Log("Se han cargado " + itemPrefabs.Count + " ítems.");
+    }
+
+    // Método para cargar todos los prefabs de AttackObjects
+    private void LoadAllAttackObjects()
+    {
+        AttackObjectsPrefabs.Clear();
+
+        GameObject[] prefabs = Resources.LoadAll<GameObject>("Prefabs/Items/AttackObjects");
+        AttackObjectsPrefabs = new List<GameObject>(prefabs);
+        //Debug.Log("Se han cargado " + AttackObjectsPrefabs.Count + " ítems.");
     }
 
     // Método para cargar todos los prefabs de máquinas

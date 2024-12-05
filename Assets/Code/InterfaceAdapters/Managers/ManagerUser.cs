@@ -1,5 +1,11 @@
 using UnityEngine;
 using System;
+using Unity.VisualScripting;
+using System.Collections.Generic;
+using System.Linq;
+using Game.Player;
+using UnityEngine.UI;
+
 
 public class ManagerUser : MonoBehaviour
 {
@@ -19,6 +25,24 @@ public class ManagerUser : MonoBehaviour
     [SerializeField] private float currentEnergy;
     [SerializeField] private float maxOtherValue = 100; 
     [SerializeField] private float currentOtherValue;
+
+
+    [Header("Managers and Objects")]
+    [SerializeField][Tooltip("Select from Inspector")] private GameObject prefabAttackHUD;
+    [SerializeField][Tooltip("Select from Inspector, attack container")] private GameObject contentSelectAttack;
+    [SerializeField][Tooltip("Select from Inspector")] private HUDController HUD;
+    [SerializeField][Tooltip("Select from Inspector")] private ItemManager itemManager;
+
+
+    [Header("Player")]
+    [SerializeField][Tooltip("Searched in load scene")] private ThirdPersonController player;
+    [SerializeField][Tooltip("Select from Inspector")]private GameObject defaultPrefabAttack;
+    [SerializeField][Tooltip("Player change from HUD")] private GameObject prefabActualAttack;
+    [SerializeField]private InteractionType interaction;
+    public InteractionType Interaction => interaction;
+    [SerializeField]private AttackPlayerType attackPlayer;
+    public AttackPlayerType AttackPlayer => attackPlayer;
+
 
     private void Start()
     {
@@ -118,16 +142,63 @@ public class ManagerUser : MonoBehaviour
         UpdateHUD();
     }
 
-    // Actualización del HUD
+    // Actualización de las barras en el HUD
     private void UpdateHUD()
     {
-        HUDController hud = FindObjectOfType<HUDController>();
-        if (hud != null)
-        {
-            hud.UpdateLifeBar(currentHealth, maxHealth);
-            hud.UpdateEnergyBar(currentEnergy, maxEnergy);
-            hud.UpdateOtherBar(currentOtherValue, maxOtherValue); // Actualiza la tercera barra
-        }
+        HUD.UpdateLifeBar(currentHealth, maxHealth);
+        HUD.UpdateEnergyBar(currentEnergy, maxEnergy);
+        HUD.UpdateOtherBar(currentOtherValue, maxOtherValue); // Actualiza la tercera barra
     }
+
+    
+
+    // Se llama al cargar una escena desde ManagerScenes para construir las opciones del HUD
+    public void SetupHUD()
+    {   
+         prefabActualAttack = prefabActualAttack == null ? defaultPrefabAttack : prefabActualAttack;
+
+        // Genera opciones de ataque en el HUD
+        foreach (var weapon in itemManager.AttackObjectsPrefabs)
+        {
+            var weaponBase = weapon.GetComponent<WeaponBase>();
+            if (weaponBase.IsUnlocked)
+            {
+                // Instanciar y configurar cada HUDAttack
+                GameObject hudInstance = Instantiate(prefabAttackHUD, contentSelectAttack.transform, false);
+                hudInstance.GetComponent<HUDAttack>().Setup(
+                    weaponBase.WeaponID,
+                    weaponBase.WeaponIcon,
+                    weapon,
+                    contentSelectAttack.GetComponent<ToggleGroup>(), 
+                    this,
+                    HUD
+                );
+            }
+        }
+        // Actualiza barras del HUD
+        UpdateHUD();
+
+        // Busca el player en la nueva escena
+        player = GameObject.FindWithTag("Player").GetComponent<ThirdPersonController>();
+
+        // Actualiza el ataque actual o por defecto
+        updateSelectAttack(prefabActualAttack);
+
+    }
+
+    // Selección de ataques en el player y en el HUD
+    public void updateSelectAttack(GameObject prefabAttack)
+    {
+        prefabActualAttack = prefabAttack;
+        WeaponBase weapon = prefabActualAttack.GetComponent<WeaponBase>();
+        
+        attackPlayer = player.ActiveAttack = weapon.AttackPlayer;
+        interaction = player.Interaction = weapon.Interaction;
+        player.InstantiateWeapon(prefabActualAttack, weapon.RightHand);
+    }
+
+
+
+    // -------- SINCRONIZAR CON PLAYFAB TODOS LOS DATOS DE AQUÍ-----
 
 }

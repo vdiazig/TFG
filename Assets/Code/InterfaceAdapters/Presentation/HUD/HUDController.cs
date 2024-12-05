@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Collections;
+using System.Collections.Generic;
 
 
 public class HUDController : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDownHandler
@@ -15,9 +17,10 @@ public class HUDController : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
 
 
     [Header("Buttons")]
-    [SerializeField] private Button controlXButton; // Atacar/Interactuar
-    [SerializeField] private Button controlTButton; // Salto
-    [SerializeField] private Button controlSButton; // Defenderse
+    [SerializeField] private float touchLarge = 0.3f;
+    [SerializeField] private Button controlXButton; // Atacar/Interactuar/Seleccionar arma
+    [SerializeField] private Button controlTButton; // Saltar/agacharse
+    [SerializeField] private Button controlSButton; // Rodar/...
     [SerializeField] private Button controlMenu; // Menú
 
     [Header("Energy Bars")]
@@ -25,11 +28,23 @@ public class HUDController : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
     [SerializeField] private Scrollbar energyBar;
     [SerializeField] private Scrollbar otherBar;
 
-    // Event Handlers para conectar con el personaje o sistema
-    public System.Action OnJumpPressed;
-    public System.Action OnInteractPressed;
-    public System.Action OnDefendPressed;
-    public System.Action OnMenuPressed;
+    [Header("SelectAttack")]
+    [SerializeField] private GameObject menuAttack;
+
+
+    // Controladores de interacción
+    private Coroutine buttonHoldCoroutine; 
+    private float buttonHoldTime = 0f; // Controla el tiempo de presión del botón
+    private HUDActionType currentButton; // Identifica el tipo de botón presionado
+
+     // Eventos generales para botones
+    public System.Action OnTrianglePressed;
+    public System.Action OnTriangleHeld;
+    public System.Action OnCrossPressed;
+    public System.Action OnCrossHeld;
+    public System.Action OnSquarePressed;
+    public System.Action OnSquareHeld;
+    
 
     void Start()
     {
@@ -39,23 +54,90 @@ public class HUDController : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
         // Calculamos el radio del contenedor (mitad del tamaño menor del fondo)
         joystickRadius = joystickLimits.sizeDelta.x / 2;
 
-        // Asignar eventos a los botones
-        controlXButton.onClick.AddListener(HandleInteractButton);
-        controlTButton.onClick.AddListener(HandleJumpButton);
-        controlSButton.onClick.AddListener(HandleDefendButton);
-        controlMenu.onClick.AddListener(HandleMenuButton);
     }
 
-    private void OnDestroy()
+
+    // --- BUTTONS ---
+
+    public void StartTriangleHoldRoutine()
     {
-        // Eliminar eventos de los botones al destruir el objeto
-        controlXButton.onClick.RemoveListener(HandleInteractButton);
-        controlTButton.onClick.RemoveListener(HandleJumpButton);
-        controlSButton.onClick.RemoveListener(HandleDefendButton);
-        controlMenu.onClick.RemoveListener(HandleMenuButton);
+        StartButtonHoldRoutine(HUDActionType.Triangle,  OnTriangleHeld);
     }
 
-    // --- JOYSTICK ---
+    public void StartCrossHoldRoutine()
+    { 
+        StartButtonHoldRoutine(HUDActionType.Cross, () =>
+        {
+            menuAttack.SetActive(true);
+            //OnCrossHeld?.Invoke(); 
+        });
+    }
+
+    public void StartSquareHoldRoutine()
+    {
+        StartButtonHoldRoutine(HUDActionType.Square, OnSquareHeld);
+    }
+
+
+    public void StartButtonHoldRoutine(HUDActionType buttonType, System.Action onHeld)
+    {
+        currentButton = buttonType; // Almacena el botón presionado
+        buttonHoldTime = 0f; // Reinicia el tiempo de presión
+        if (buttonHoldCoroutine == null)
+        {
+            buttonHoldCoroutine = StartCoroutine(ButtonHoldRoutine(onHeld));
+        }
+    }
+
+
+    public void StopButtonHoldRoutine()
+    {
+        if (buttonHoldCoroutine != null)
+        {
+            StopCoroutine(buttonHoldCoroutine);
+            buttonHoldCoroutine = null;
+
+            if (buttonHoldTime < touchLarge)
+            {
+                //Debug.Log("Toque corto detectado.");
+                switch (currentButton)
+                {
+                    case HUDActionType.Triangle:
+                        OnTrianglePressed?.Invoke();
+                        break;
+                    case HUDActionType.Cross:
+                        OnCrossPressed?.Invoke();
+                        break;
+                    case HUDActionType.Square:
+                        OnSquarePressed?.Invoke();
+                        break;
+                }
+            }
+        }
+    }
+
+
+    private IEnumerator ButtonHoldRoutine(System.Action onHeld)
+    {
+        while (buttonHoldTime < touchLarge) // Espera 1 segundo
+        {
+            buttonHoldTime += Time.deltaTime;
+            yield return null;
+        }
+
+        onHeld?.Invoke(); // Invoca la acción prolongada
+        buttonHoldCoroutine = null;
+    }
+
+
+    public void CloseMenuAttack()
+    {
+        menuAttack.SetActive(false);
+
+    }
+
+
+  // --- JOYSTICK ---
     public void OnPointerDown(PointerEventData eventData)
     {
         // No es necesario implementar aquí a menos que quieras realizar acciones específicas al tocar el joystick
@@ -91,40 +173,24 @@ public class HUDController : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
         joystickDirection = Vector2.zero;
     }
 
+    // Dirección de joystick
     public Vector2 GetJoystickDirection()
     {
         return joystickDirection;
     }
 
-
-
-    // --- BUTTONS ---
-    private void HandleJumpButton()
+    // Intensidad del joystick
+    public float GetJoystickVelocity()
     {
-        Debug.Log("Jump Button Pressed");
-        OnJumpPressed?.Invoke(); // Notificar que se presionó el botón de salto
+        float magnitude = joystickDirection.magnitude; 
+        return Mathf.Clamp01(magnitude);
     }
 
-    private void HandleInteractButton()
-    {
-        Debug.Log("Interact Button Pressed");
-        OnInteractPressed?.Invoke(); // Notificar que se presionó el botón de ataque/interacción
-    }
 
-    private void HandleDefendButton()
-    {
-        Debug.Log("Defend Button Pressed");
-        OnDefendPressed?.Invoke(); // Notificar que se presionó el botón de defensa
-    }
-
-    private void HandleMenuButton()
-    {
-        Debug.Log("Menu Button Pressed");
-        OnMenuPressed?.Invoke(); // Notificar que se presionó el botón de menú
-    }
 
 
     // --- ENERGY BARS ---
+    // Actualizar barra de vida
      public void UpdateLifeBar(float currentHealth, float maxHealth)
     {
         lifeBar.size = currentHealth / maxHealth;
@@ -136,6 +202,7 @@ public class HUDController : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
         energyBar.size = currentEnergy / maxEnergy;
     }
 
+    // Actualizar barra temporal
     public void UpdateOtherBar(float currentOtherValue, float maxOtherValue)
     {
         otherBar.size = currentOtherValue / maxOtherValue;
