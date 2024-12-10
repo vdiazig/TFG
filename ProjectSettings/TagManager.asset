@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Enemy
   - Weapon
+  - Water
+  - Limit
   layers:
   - Default
   - TransparentFX
@@ -16,9 +18,9 @@ TagManager:
   - Ground
   - Enemy
   - Limit
-  - 
-  - 
-  - 
+  - Hazard
+  - Light
+  - Player
   - 
   - 
   - 

@@ -74,7 +74,7 @@ GameObject:
   - component: {fileID: 5661562642380164020}
   - component: {fileID: 7677825684065626579}
   m_Layer: 5
-  m_Name: LeftNotification
+  m_Name: SidebarNotification
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -95,9 +95,9 @@ RectTransform:
   - {fileID: 7924996435270607317}
   m_Father: {fileID: 8092496175757140009}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 200, y: 219.75}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -200, y: 219.75}
   m_SizeDelta: {x: 400, y: -439.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5661562642380164020

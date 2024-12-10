@@ -1,6 +1,8 @@
-public enum HUDActionType
-{
-    Triangle,
-    Cross,
-    Square
+namespace Entities.Types{
+    public enum HUDActionType
+    {
+        Triangle,
+        Cross,
+        Square
+    }
 }

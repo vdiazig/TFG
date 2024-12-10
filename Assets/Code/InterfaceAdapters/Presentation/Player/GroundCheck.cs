@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Player
+namespace InterfaceAdapters.Presentation.Player
 {
     public class GroundCheck : MonoBehaviour
     {

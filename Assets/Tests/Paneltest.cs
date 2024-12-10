@@ -1,7 +1,10 @@
 // Script tests
 using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
+
+using InterfaceAdapters.Interfaces;
+using Entities.Types;
+using InterfaceAdapters.Managers;
+
 
 public class PanelTest : MonoBehaviour
 {
@@ -16,7 +19,7 @@ public class PanelTest : MonoBehaviour
     }
 
     public void TestLefNot(){
-        _notification.NotificationLeft(elSprite, elName);
+        _notification.NotificationSidebar(elSprite, elName, null);
 
     }
 

@@ -1,10 +1,16 @@
 using UnityEngine;
 using System;
-public interface INotification
+
+using Entities.Types;
+
+namespace InterfaceAdapters.Interfaces
 {
-    void NotificationScreen(string title, Sprite image, string body, Action nextAction);
-    void NotificationLeft(Sprite image, string name);
-    void NotificationUp(string message, NotificationType type);
-    void NotificationUpClose();
-    void NotificationClean();
+    public interface INotification
+    {
+        void NotificationScreen(string title, Sprite image, string body, Action nextAction);
+        void NotificationSidebar(Sprite image, string name, AudioClip clip);
+        void NotificationUp(string message, NotificationType type);
+        void NotificationUpClose();
+        void NotificationClean();
+    }
 }

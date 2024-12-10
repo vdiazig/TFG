@@ -1,17 +1,12 @@
 using UnityEngine;
-using System.Collections;
 
 
-
-namespace Game.Player
+namespace InterfaceAdapters.Presentation.Player
 {
     [RequireComponent(typeof(CharacterController), typeof(GroundCheck))]
     public class ThirdPersonMovement : MonoBehaviour
     {
         private const float TURN_SMOOTH_TIME = 0.05f;
-
-        [SerializeField][Tooltip("Used to determine movement direction based on input and camera forward axis")] 
-        private Transform playerCamera;
 
         [Header("Movement Settings")]
 
@@ -51,33 +46,31 @@ namespace Game.Player
             avatar = target;
         }
 
-
-
-
         // Movimiento y velocidad
         public void Move(float inputX, float inputY, float speedMultiplier)
         {
             if (isInteracting)
             {
-                // Si está interactuando, no hacer nada
                 CurrentMoveSpeed = 0f;
                 return;
             }
 
-            var moveDirection = (playerCamera.right * inputX + playerCamera.forward * inputY).normalized;
-           
+            // Movimiento basado directamente en el joystick
+            Vector3 moveDirection = new Vector3(inputX, 0, inputY).normalized;
+
             // Velocidad de movimiento según la acción
-            var moveSpeed = IsCrouching ? crouchSpeed : runSpeed;  
+            var moveSpeed = IsCrouching ? crouchSpeed : runSpeed;
             moveSpeed *= speedMultiplier;
 
-
             JumpAndGravity();
+
+            // Aplicar movimiento al controlador
             controller.Move(moveDirection * (moveSpeed * Time.deltaTime) + Vector3.up * verticalVelocity * Time.deltaTime);
 
             CurrentMoveSpeed = moveSpeed * moveDirection.magnitude;
 
+            // Rotar el avatar hacia la dirección de movimiento
             RotateAvatarTowardsMoveDirection(moveDirection);
-
         }
 
 

@@ -135,7 +135,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6216186451286730347}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: RPM PlayerObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -397,8 +397,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 7837680963287637609}
   target: {fileID: 6537026379332176243}
-  cameraDistance: 5
   followOnStart: 1
+  offset3D: {x: 2, y: 5, z: -3}
+  is2D: 0
+  positionOffset2D: {x: 0, y: 30, z: 0}
+  rotation2D: {x: 90, y: 0, z: 0}
 --- !u!1 &1429959997504565899
 GameObject:
   m_ObjectHideFlags: 0
@@ -586,7 +589,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd198b5daef562e4d9e07e8e7632cadf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerCamera: {fileID: 3029329605297954411}
   runSpeed: 6
   crouchSpeed: 3
   gravity: -18

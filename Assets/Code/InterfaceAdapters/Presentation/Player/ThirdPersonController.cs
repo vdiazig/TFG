@@ -1,7 +1,9 @@
-using UnityEditor.Timeline.Actions;
 using UnityEngine;
 
-namespace Game.Player
+using Entities.Types;
+using InterfaceAdapters.Presentation.HUD;
+
+namespace InterfaceAdapters.Presentation.Player
 {
     [RequireComponent(typeof(ThirdPersonMovement))]
     public class ThirdPersonController : MonoBehaviour
@@ -47,6 +49,8 @@ namespace Game.Player
         }
         [SerializeField] private GameObject RightHandWeapon;
         [SerializeField] private GameObject LeftHandWeapon;
+        [SerializeField] private bool isUsing;
+        public bool IsUsing => isUsing;
 
 
 
@@ -166,6 +170,7 @@ namespace Game.Player
 
         private void OnCross()
         {
+            isUsing = true;
             Debug.Log("Cross pressed: attack/interact");
             if (thirdPersonMovement.TryInteract())
             {
@@ -240,14 +245,13 @@ namespace Game.Player
         public void EndInteract(){
             animator.SetInteger(InteractionTypeHash, 0);
             animator.SetInteger(AttackTypeHash, 0);
+            isUsing = false;
         }
 
 
         /*private void OnCrossHeld()
         {
             Debug.Log("Cross held: select weapon");
-
-
         }*/
 
         private void OnSquare()
@@ -261,8 +265,6 @@ namespace Game.Player
        /* private void OnSquareHeld()
         {
             Debug.Log("Square prolonged: not function");
-
-
         }*/
 
 

@@ -1,204 +1,233 @@
 using UnityEngine;
 using System;
-using Unity.VisualScripting;
 using System.Collections.Generic;
-using System.Linq;
-using Game.Player;
 using UnityEngine.UI;
 
+using Entities.Items;
+using Entities.Types;
+using Entities.Class;
+using Infraestructure.Services;
+using InterfaceAdapters.Interfaces;
+using InterfaceAdapters.Presentation.HUD;
+using InterfaceAdapters.Presentation.Player;
 
-public class ManagerUser : MonoBehaviour
+
+namespace InterfaceAdapters.Managers
 {
-    private IPlayFabService _playFabService, IPlayerStats;
-
-    [Header("User Session Info")]
-    [SerializeField] private bool _userSesion; // Indica si hay sesión activa
-    [SerializeField] private string _displayName;
-    [SerializeField] private string _email;
-    [SerializeField] private string _playFabId;
-
-
-    [Header("Player Stats")]
-    [SerializeField] private float maxHealth = 100;
-    [SerializeField] private float currentHealth;
-    [SerializeField] private float maxEnergy = 100;
-    [SerializeField] private float currentEnergy;
-    [SerializeField] private float maxOtherValue = 100; 
-    [SerializeField] private float currentOtherValue;
-
-
-    [Header("Managers and Objects")]
-    [SerializeField][Tooltip("Select from Inspector")] private GameObject prefabAttackHUD;
-    [SerializeField][Tooltip("Select from Inspector, attack container")] private GameObject contentSelectAttack;
-    [SerializeField][Tooltip("Select from Inspector")] private HUDController HUD;
-    [SerializeField][Tooltip("Select from Inspector")] private ItemManager itemManager;
-
-
-    [Header("Player")]
-    [SerializeField][Tooltip("Searched in load scene")] private ThirdPersonController player;
-    [SerializeField][Tooltip("Select from Inspector")]private GameObject defaultPrefabAttack;
-    [SerializeField][Tooltip("Player change from HUD")] private GameObject prefabActualAttack;
-    [SerializeField]private InteractionType interaction;
-    public InteractionType Interaction => interaction;
-    [SerializeField]private AttackPlayerType attackPlayer;
-    public AttackPlayerType AttackPlayer => attackPlayer;
-
-
-    private void Start()
+    public class ManagerUser : MonoBehaviour
     {
-        _playFabService = new PlayFabService(); 
+        private IPlayFabService _playFabService, IPlayerStats;
 
-        currentHealth = maxHealth;
-        currentEnergy = maxEnergy;
-
-        UpdateHUD();
-    }
-
-    //___ Sesión de usuario
-    public bool IsUserLoggedIn()
-    {
-        _userSesion = _playFabService.IsUserLoggedIn();
-        return _userSesion;
-    }
-
-    public void GetUserProfile(Action<UserProfile> onSuccess, Action<string> onFailure)
-    {
-        _playFabService.GetUserProfile(onSuccess, onFailure);
-    }
-
-    public void LogoutUser()
-    {
-        _playFabService.ForgetSession();
-        ClearSessionData();
-    }
-
-    public void SetUserProfile(UserProfile profile)
-    {
-        _userSesion = true;
-        _displayName = profile.DisplayName;
-        _email = profile.Email;
-        _playFabId = profile.PlayFabId;
-    }
-
-    private void ClearSessionData()
-    {
-        _userSesion = false;
-        _displayName = string.Empty;
-        _email = string.Empty;
-        _playFabId = string.Empty;
-    }
+        [Header("User Session Info")]
+        [SerializeField] private bool _userSesion; // Indica si hay sesión activa
+        [SerializeField] private string _displayName;
+        [SerializeField] private string _email;
+        [SerializeField] private string _playFabId;
 
 
+        [Header("Player Stats")]
+        [SerializeField] private float maxHealth = 100;
+        [SerializeField] private float currentHealth;
+        [SerializeField] private float maxEnergy = 100;
+        [SerializeField] private float currentEnergy;
+        [SerializeField] private float maxOtherValue = 100; 
+        [SerializeField] private float currentOtherValue;
 
 
-   // Métodos para Vida
-    public void TakeDamage(float amount)
-    {
-        currentHealth -= amount;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        UpdateHUD();
+        [Header("Managers and Objects")]
+        [SerializeField][Tooltip("Select from Inspector")] private GameObject prefabAttackHUD;
+        [SerializeField][Tooltip("Select from Inspector, attack container")] private GameObject contentSelectAttack;
+        [SerializeField][Tooltip("Select from Inspector")] private HUDController HUD;
+        [SerializeField][Tooltip("Select from Inspector")] private ItemManagerService ItemManagerService;
 
-        if (currentHealth <= 0)
+
+        [Header("Player")]
+        [SerializeField][Tooltip("Searched in load scene")] private ThirdPersonController player;
+        [SerializeField][Tooltip("Select from Inspector")]private GameObject defaultPrefabAttack;
+        [SerializeField][Tooltip("Player change from HUD")] private GameObject prefabActualAttack;
+        [SerializeField]private InteractionType interaction;
+        public InteractionType Interaction => interaction;
+        [SerializeField]private AttackPlayerType attackPlayer;
+        public AttackPlayerType AttackPlayer => attackPlayer;
+
+        [Header("Items collected")]
+        [SerializeField] private List<NewItem> listCollectedItems;
+
+        private void Start()
         {
-            Debug.Log("Player has died!");
-            // Aquí puedes manejar la lógica de muerte
+            _playFabService = new PlayFabService(); 
+
+            currentHealth = maxHealth;
+            currentEnergy = maxEnergy;
+
+            UpdateHUD();
         }
-    }
 
-    public void Heal(float amount)
-    {
-        currentHealth += amount;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        UpdateHUD();
-    }
-
-    // Métodos para Energía
-    public void UseEnergy(float amount)
-    {
-        currentEnergy -= amount;
-        currentEnergy = Mathf.Clamp(currentEnergy, 0, maxEnergy);
-        UpdateHUD();
-    }
-
-    public void RegainEnergy(float amount)
-    {
-        currentEnergy += amount;
-        currentEnergy = Mathf.Clamp(currentEnergy, 0, maxEnergy);
-        UpdateHUD();
-    }
-
-    // Métodos para la Tercera Barra
-    public void DecreaseOtherValue(float amount)
-    {
-        currentOtherValue -= amount;
-        currentOtherValue = Mathf.Clamp(currentOtherValue, 0, maxOtherValue);
-        UpdateHUD();
-    }
-
-    public void IncreaseOtherValue(float amount)
-    {
-        currentOtherValue += amount;
-        currentOtherValue = Mathf.Clamp(currentOtherValue, 0, maxOtherValue);
-        UpdateHUD();
-    }
-
-    // Actualización de las barras en el HUD
-    private void UpdateHUD()
-    {
-        HUD.UpdateLifeBar(currentHealth, maxHealth);
-        HUD.UpdateEnergyBar(currentEnergy, maxEnergy);
-        HUD.UpdateOtherBar(currentOtherValue, maxOtherValue); // Actualiza la tercera barra
-    }
-
-    
-
-    // Se llama al cargar una escena desde ManagerScenes para construir las opciones del HUD
-    public void SetupHUD()
-    {   
-         prefabActualAttack = prefabActualAttack == null ? defaultPrefabAttack : prefabActualAttack;
-
-        // Genera opciones de ataque en el HUD
-        foreach (var weapon in itemManager.AttackObjectsPrefabs)
+        // -------- SESIÓN DE USUARIO -----
+        public bool IsUserLoggedIn()
         {
-            var weaponBase = weapon.GetComponent<WeaponBase>();
-            if (weaponBase.IsUnlocked)
+            _userSesion = _playFabService.IsUserLoggedIn();
+            return _userSesion;
+        }
+
+        public void GetUserProfile(Action<UserProfile> onSuccess, Action<string> onFailure)
+        {
+            _playFabService.GetUserProfile(onSuccess, onFailure);
+        }
+
+        public void LogoutUser()
+        {
+            _playFabService.ForgetSession();
+            ClearSessionData();
+        }
+
+        public void SetUserProfile(UserProfile profile)
+        {
+            _userSesion = true;
+            _displayName = profile.DisplayName;
+            _email = profile.Email;
+            _playFabId = profile.PlayFabId;
+        }
+
+        private void ClearSessionData()
+        {
+            _userSesion = false;
+            _displayName = string.Empty;
+            _email = string.Empty;
+            _playFabId = string.Empty;
+        }
+
+
+
+        // -------- BARRAS DE VIDA Y ENERGÍA -----
+    // Métodos para Vida
+        public void TakeDamage(float amount)
+        {
+            currentHealth -= amount;
+            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+            UpdateHUD();
+
+            if (currentHealth <= 0)
             {
-                // Instanciar y configurar cada HUDAttack
-                GameObject hudInstance = Instantiate(prefabAttackHUD, contentSelectAttack.transform, false);
-                hudInstance.GetComponent<HUDAttack>().Setup(
-                    weaponBase.WeaponID,
-                    weaponBase.WeaponIcon,
-                    weapon,
-                    contentSelectAttack.GetComponent<ToggleGroup>(), 
-                    this,
-                    HUD
-                );
+                Debug.Log("Player has died!");
+                // Aquí puedes manejar la lógica de muerte
             }
         }
-        // Actualiza barras del HUD
-        UpdateHUD();
 
-        // Busca el player en la nueva escena
-        player = GameObject.FindWithTag("Player").GetComponent<ThirdPersonController>();
+        public void Heal(float amount)
+        {
+            currentHealth += amount;
+            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+            UpdateHUD();
+        }
 
-        // Actualiza el ataque actual o por defecto
-        updateSelectAttack(prefabActualAttack);
+        // Métodos para Energía
+        public void UseEnergy(float amount)
+        {
+            currentEnergy -= amount;
+            currentEnergy = Mathf.Clamp(currentEnergy, 0, maxEnergy);
+            UpdateHUD();
+        }
 
-    }
+        public void RegainEnergy(float amount)
+        {
+            currentEnergy += amount;
+            currentEnergy = Mathf.Clamp(currentEnergy, 0, maxEnergy);
+            UpdateHUD();
+        }
 
-    // Selección de ataques en el player y en el HUD
-    public void updateSelectAttack(GameObject prefabAttack)
-    {
-        prefabActualAttack = prefabAttack;
-        WeaponBase weapon = prefabActualAttack.GetComponent<WeaponBase>();
+        // Métodos para la Tercera Barra
+        public void DecreaseOtherValue(float amount)
+        {
+            currentOtherValue -= amount;
+            currentOtherValue = Mathf.Clamp(currentOtherValue, 0, maxOtherValue);
+            UpdateHUD();
+        }
+
+        public void IncreaseOtherValue(float amount)
+        {
+            currentOtherValue += amount;
+            currentOtherValue = Mathf.Clamp(currentOtherValue, 0, maxOtherValue);
+            UpdateHUD();
+        }
+
         
-        attackPlayer = player.ActiveAttack = weapon.AttackPlayer;
-        interaction = player.Interaction = weapon.Interaction;
-        player.InstantiateWeapon(prefabActualAttack, weapon.RightHand);
+        // -------- CARGA INICIAL DEL HUD -----
+        // Actualización de las barras en el HUD
+        private void UpdateHUD()
+        {
+            HUD.UpdateLifeBar(currentHealth, maxHealth);
+            HUD.UpdateEnergyBar(currentEnergy, maxEnergy);
+            HUD.UpdateOtherBar(currentOtherValue, maxOtherValue); // Actualiza la tercera barra
+        }
+
+        // Se llama al cargar una escena desde ManagerScenes para construir las opciones del HUD
+        public void SetupHUD()
+        {   
+            prefabActualAttack = prefabActualAttack == null ? defaultPrefabAttack : prefabActualAttack;
+
+            // Genera opciones de ataque en el HUD
+            foreach (var weapon in ItemManagerService.AttackObjectsPrefabs)
+            {
+                var weaponBase = weapon.GetComponent<WeaponBase>();
+                if (weaponBase.IsUnlocked)
+                {
+                    // Instanciar y configurar cada HUDAttack
+                    GameObject hudInstance = Instantiate(prefabAttackHUD, contentSelectAttack.transform, false);
+                    hudInstance.GetComponent<HUDAttack>().Setup(
+                        weaponBase.WeaponID,
+                        weaponBase.WeaponIcon,
+                        weapon,
+                        contentSelectAttack.GetComponent<ToggleGroup>(), 
+                        this,
+                        HUD
+                    );
+                }
+            }
+            // Actualiza barras del HUD
+            UpdateHUD();
+
+            // Busca el player en la nueva escena
+            player = GameObject.FindWithTag("Player").GetComponent<ThirdPersonController>();
+
+            // Actualiza el ataque actual o por defecto
+            updateSelectAttack(prefabActualAttack);
+
+        }
+
+        // Selección de ataques en el player y en el HUD
+        public void updateSelectAttack(GameObject prefabAttack)
+        {
+            prefabActualAttack = prefabAttack;
+            WeaponBase weapon = prefabActualAttack.GetComponent<WeaponBase>();
+            
+            attackPlayer = player.ActiveAttack = weapon.AttackPlayer;
+            interaction = player.Interaction = weapon.Interaction;
+            player.InstantiateWeapon(prefabActualAttack, weapon.RightHand);
+        }
+        
+
+        // -------- NUEVOS ITEM TEMPORALES CONSEGUIDOS -----
+        public void AddNewItem(int id, int quantity)
+        {
+            // Busca si el ítem ya existe en la lista
+            NewItem existingItem = listCollectedItems.Find(item => item.id == id);
+            if (existingItem != null)
+            {
+                // Si existe, aumenta la cantidad
+                existingItem.quantity += quantity;
+            }
+            else
+            {
+                // Si no existe, añade un nuevo ítem
+                listCollectedItems.Add(new NewItem(id, quantity));
+            }
+        }
+
+
+        // -------- SINCRONIZAR CON PLAYFAB TODOS LOS DATOS DE AQUÍ -----
+
+        // Guardar listCollectedItems
+
     }
-
-
-
-    // -------- SINCRONIZAR CON PLAYFAB TODOS LOS DATOS DE AQUÍ-----
-
 }
