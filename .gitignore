@@ -1,3 +1,7 @@
+# Excepciones: Permitir archivos en la carpeta Releases
+!Releases/
+!Releases/*.apk
+
 # Unity generated files
 Library/
 Temp/
@@ -30,8 +34,3 @@ obj/
 # Ignore PlayFab directories if generated on local
 Assets/PlayFabEditorExtensions/
 Assets/PlayFabSDK/
-
-# Excepciones: Permitir archivos en la carpeta Releases
-!Releases/
-!Releases/*.apk
-!Releases/*

@@ -17,6 +17,9 @@ Los resultados esperados son una demo funcional que incluya el área para la ges
 - **Repositorio del Proyecto en GitHub**:  
   [Repositorio en GitHub](https://github.com/vdiazig/TFG.git)
 
+- **Demo del juego**:
+  Disponible en la carpeta Releases del ropositorio en GitHub.  
+
 - **Video de Presentación en YouTube**:  
   [Ver Video de Presentación](https://youtu.be/LmymTMK7em8)
 
