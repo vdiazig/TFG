@@ -12,12 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Base/Base.unity
     guid: e35d34df5f87ac84faf8f02479162b49
   - enabled: 1
-    path: Assets/Scenes/Exploration/exp1-01.unity
-    guid: e251b7aa78affc9408fc3e80e8ed5b59
-  - enabled: 1
-    path: Assets/Scenes/Area1-01.unity
+    path: Assets/Scenes/Exploration/Area1-01.unity
     guid: 91655130a9b46af43a8084d9142a7df9
   - enabled: 1
-    path: Assets/Scenes/Area1-02.unity
+    path: Assets/Scenes/Bosses/Area1-02.unity
     guid: d64cb51835382f1409c43ef61b4dcbc4
   m_configObjects: {}

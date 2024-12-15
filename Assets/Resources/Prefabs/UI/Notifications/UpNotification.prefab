@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: asddsa
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 99c72e9e21b296c428afc3ded54b3610, type: 2}
-  m_sharedMaterial: {fileID: 179300237180836201, guid: 99c72e9e21b296c428afc3ded54b3610, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f9bac40f12052414984d0e6cdf5e256f, type: 2}
+  m_sharedMaterial: {fileID: -3281378225639642304, guid: f9bac40f12052414984d0e6cdf5e256f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -187,6 +187,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _elementNameText: {fileID: 2120461406516094227}
+  successColor: {r: 0, g: 1, b: 0, a: 1}
+  warningColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  errorColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!222 &785974618501335578
 CanvasRenderer:
   m_ObjectHideFlags: 0

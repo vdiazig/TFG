@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System;
 
 using Entities.Types;
-using InterfaceAdapters.Presentation.Notification;
 
 namespace InterfaceAdapters.Presentation.Notification
 {
@@ -19,7 +18,7 @@ namespace InterfaceAdapters.Presentation.Notification
         [Header("Left Notification")]
         [SerializeField] private GameObject leftNotification;
         [SerializeField] private Transform leftContainer;
-        [SerializeField] private NotificationLeft notificationLeftPrefab; 
+        [SerializeField] private NotificationSidebar notificationLeftPrefab; 
         private int maxVisibleNotificationsLeft = 7;
         [SerializeField] private List<GameObject> activeNotificationsLeft = new List<GameObject>(); 
 
@@ -76,7 +75,7 @@ namespace InterfaceAdapters.Presentation.Notification
             leftNotification.SetActive(true);
 
             // Crear nueva notificación y añadirla al contenedor
-            NotificationLeft newElement = Instantiate(notificationLeftPrefab, leftContainer);
+            NotificationSidebar newElement = Instantiate(notificationLeftPrefab, leftContainer);
             newElement.Initialize(image, name, this, clip);
             activeNotificationsLeft.Add(newElement.gameObject);
 

@@ -7,7 +7,7 @@ public class loadSceneTest : MonoBehaviour
     public AudioSource audioSource;
     public void loadTest()
     {
-        ManagerScenes.Instance.LoadScene("Area1-01", true, () => 
+        ManagerScenes.Instance.LoadScene("Area1-02", true, () => 
         {
             Debug.Log("TEST: scene test3 load.");
         });

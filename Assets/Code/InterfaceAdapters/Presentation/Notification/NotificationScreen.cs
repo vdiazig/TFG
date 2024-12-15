@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System;
+using Unity.VisualScripting;
 
 namespace InterfaceAdapters.Presentation.Notification
 {
@@ -16,7 +17,15 @@ namespace InterfaceAdapters.Presentation.Notification
         public void Initialize(string title, Sprite image, string body, Action onButtonClickAction)
         {
             _titleText.text = title;
-            _imageItem.sprite = image;
+            if (image != null)
+            {
+                _imageItem.sprite = image;
+            }
+            else
+            {
+                _imageItem.gameObject.SetActive(false);
+            }
+            
             _bodyText.text = body;
             _onButtonClick = onButtonClickAction;
 

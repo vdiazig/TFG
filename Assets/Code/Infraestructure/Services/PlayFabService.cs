@@ -1,9 +1,12 @@
+using UnityEngine;
+using System.Collections.Generic;
+using System;
+
 using PlayFab;
 using PlayFab.ClientModels;
-using UnityEngine;
 
 using Entities.Class;
-using InterfaceAdapters.Interfaces;
+using UseCases.Services;
 
 namespace Infraestructure.Services
 {
@@ -132,7 +135,37 @@ namespace Infraestructure.Services
                 error => onFailure(error.GenerateErrorReport()));
         }
 
+        //______ DATOS
+        // Guarda los datos del jugador en PlayFab
+        public void SavePlayerData(Dictionary<string, string> data, Action onSuccess, Action<string> onFailure)
+        {
+            var request = new UpdateUserDataRequest
+            {
+                Data = data
+            };
 
+            PlayFabClientAPI.UpdateUserData(request,
+                result => onSuccess(),
+                error => onFailure(error.ErrorMessage));
+        }
+        
+        // Carga los datos del jugador desde PlayFab
+        public void LoadPlayerData(Action<Dictionary<string, string>> onSuccess, Action<string> onFailure)
+        {
+            PlayFabClientAPI.GetUserData(new GetUserDataRequest(), result =>
+            {
+                var data = new Dictionary<string, string>();
+                if (result.Data != null)
+                {
+                    foreach (var entry in result.Data)
+                    {
+                        data[entry.Key] = entry.Value.Value;
+                    }
+                }
+                onSuccess(data);
+            }, 
+            error => onFailure(error.GenerateErrorReport()));
+        }
 
     }
 }

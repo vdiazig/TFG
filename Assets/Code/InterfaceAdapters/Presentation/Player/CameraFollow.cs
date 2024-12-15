@@ -60,7 +60,7 @@ namespace InterfaceAdapters.Presentation.Player
         public void Set2DMode(bool value)
         {
             is2D = value;
-            playerCamera.GetComponent<Camera>().orthographic  = true;
+            playerCamera.GetComponent<Camera>().orthographic  = value;
         }
 
         public void StopFollow()

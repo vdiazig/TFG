@@ -30,7 +30,7 @@ namespace InterfaceAdapters.Presentation.Player
         public float CurrentMoveSpeed { get; private set; }
         public float CurrentJoystickDirection {get; private set;}
         public bool IsCrouching { get; private set; }
-        private GroundCheck groundCheck;
+        [SerializeField] private GroundCheck groundCheck;
         private bool jumpTrigger;
         private bool isInteracting;
 
@@ -142,9 +142,20 @@ namespace InterfaceAdapters.Presentation.Player
 
         // Esta en el suelo
         public bool IsGrounded()
+{
+    if (groundCheck == null)
+    {
+        Debug.LogWarning("GroundCheck is null! Reassociating...");
+        groundCheck = GetComponent<GroundCheck>();
+        if (groundCheck == null)
         {
-            return groundCheck.IsGrounded();
+            Debug.LogError("GroundCheck could not be reassigned.");
+            return false;
         }
+    }
+    return groundCheck.IsGrounded();
+}
+
 
         // Esta cayendo
         public bool IsFreeFalling()

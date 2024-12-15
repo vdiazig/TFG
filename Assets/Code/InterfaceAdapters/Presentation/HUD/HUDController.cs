@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-
 using System.Collections;
+
 using Entities.Types;
+
 
 namespace InterfaceAdapters.Presentation.HUD
 {
@@ -30,12 +31,20 @@ namespace InterfaceAdapters.Presentation.HUD
         [SerializeField] private Scrollbar energyBar;
         [SerializeField] private Scrollbar otherBar;
 
-        [Header("SelectAttack")]
+        [Header("Menus")]
         [SerializeField] private GameObject menuAttack;
+
+        [Header("Contenedores")]
+        [SerializeField] private GameObject contentSelectAttack;
+            public GameObject ContentSelectAttack => contentSelectAttack;
+        
+        [SerializeField] private GameObject menuGamePause;
+            public GameObject MenuGamePause => menuGamePause;
+
 
 
         // Controladores de interacción
-        private Coroutine buttonHoldCoroutine; 
+        private Coroutine buttonHoldCoroutine = null; 
         private float buttonHoldTime = 0f; // Controla el tiempo de presión del botón
         private HUDActionType currentButton; // Identifica el tipo de botón presionado
 
@@ -56,8 +65,9 @@ namespace InterfaceAdapters.Presentation.HUD
             // Calculamos el radio del contenedor (mitad del tamaño menor del fondo)
             joystickRadius = joystickLimits.sizeDelta.x / 2;
 
-        }
+            menuAttack.SetActive(false);
 
+        }
 
         // --- BUTTONS ---
 
@@ -84,12 +94,15 @@ namespace InterfaceAdapters.Presentation.HUD
 
         public void StartButtonHoldRoutine(HUDActionType buttonType, System.Action onHeld)
         {
+            if (buttonHoldCoroutine != null)
+            {
+                StopCoroutine(buttonHoldCoroutine);
+            }
+
             currentButton = buttonType; // Almacena el botón presionado
             buttonHoldTime = 0f; // Reinicia el tiempo de presión
-            if (buttonHoldCoroutine == null)
-            {
-                buttonHoldCoroutine = StartCoroutine(ButtonHoldRoutine(onHeld));
-            }
+            buttonHoldCoroutine = StartCoroutine(ButtonHoldRoutine(onHeld));
+            
         }
 
 
@@ -141,6 +154,14 @@ namespace InterfaceAdapters.Presentation.HUD
 
 
     // --- JOYSTICK ---
+public void ResetJoystick()
+{
+    // Vuelve a colocar el joystick en su posición inicial
+    joystickControl.anchoredPosition = joystickInitialPosition;
+
+    // Resetea la dirección del joystick
+    joystickDirection = Vector2.zero;
+}
         public void OnPointerDown(PointerEventData eventData)
         {
             // No es necesario implementar aquí a menos que quieras realizar acciones específicas al tocar el joystick
@@ -189,6 +210,7 @@ namespace InterfaceAdapters.Presentation.HUD
             float magnitude = joystickDirection.magnitude; 
             return Mathf.Clamp01(magnitude);
         }
+
 
 
 

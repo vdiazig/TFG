@@ -4,15 +4,16 @@ using System.Text.RegularExpressions;
 
 using Entities.Types;
 using Entities.Class;
-using Infraestructure.Services;
+using UseCases.User;
 using InterfaceAdapters.Interfaces;
 using InterfaceAdapters.Managers;
+using Infraestructure.Services;
 
-namespace InterfaceAdapters.Presentation.TitleSceen
+namespace InterfaceAdapters.Presentation.TitleScreen
 {
     public class PlayFabLogin : MonoBehaviour
     {
-        private IPlayFabService _playFabService;
+        private UserLoginUseCase _userLoginUseCase;
         private INotification _notification;  
         [SerializeField] private ManagerUser managerUser;
 
@@ -20,14 +21,12 @@ namespace InterfaceAdapters.Presentation.TitleSceen
         [SerializeField] public GameObject menuLogin;
         [SerializeField] public GameObject menuTitle;
 
-
         [Header("Login Inputs")]
         [SerializeField] public GameObject loginObject;
         private bool _isLogin = true;
         [SerializeField] public TMP_InputField loginInputField;
         [SerializeField] public TMP_InputField passwordInputSesion;
 
-        
         [Header("Register Inputs")]
         [SerializeField] public GameObject registerObject;
         [SerializeField] public TMP_InputField nameInputRegister;
@@ -37,7 +36,8 @@ namespace InterfaceAdapters.Presentation.TitleSceen
 
         private void Start()
         {
-            _playFabService = new PlayFabService(); 
+            var playFabService = new PlayFabService(); // Crea la implementación del servicio
+            _userLoginUseCase = new UserLoginUseCase(playFabService); // Inyecta el servicio al caso de uso
             _notification = NotificationManager.Instance; 
 
             CleanInputsRegister();
@@ -45,7 +45,7 @@ namespace InterfaceAdapters.Presentation.TitleSceen
         }
 
         // Navegación entre menús
-        public void toTitleMenu()
+        public void ToTitleMenu()
         {
             menuLogin.SetActive(false);
             menuTitle.SetActive(true);
@@ -58,14 +58,23 @@ namespace InterfaceAdapters.Presentation.TitleSceen
 
             if (IsValidEmail(loginInput))
             {
-                _playFabService.LoginWithEmail(loginInput, passwordInputSesion.text, OnLoginSuccess, OnLoginFailure);
+                _userLoginUseCase.LoginWithEmail(
+                    loginInput, 
+                    passwordInputSesion.text, 
+                    OnLoginSuccess, 
+                    OnLoginFailure
+                );
             }
             else
             {
-                _playFabService.LoginWithUsername(loginInput, passwordInputSesion.text, OnLoginSuccess, OnLoginFailure);
+                _userLoginUseCase.LoginWithUsername(
+                    loginInput, 
+                    passwordInputSesion.text, 
+                    OnLoginSuccess, 
+                    OnLoginFailure
+                );
             }
         }
-
 
         // Callback en caso de inicio de sesión exitoso
         private void OnLoginSuccess(UserProfile profile)
@@ -73,10 +82,9 @@ namespace InterfaceAdapters.Presentation.TitleSceen
             managerUser.SetUserProfile(profile); 
             _notification.NotificationUp("Inicio de sesión exitoso", NotificationType.Success);
             Debug.Log("Login successful!");
-            toTitleMenu();
+            ToTitleMenu();
             CleanInputsSesion();
         }
-
 
         // Callback en caso de fallo de inicio de sesión
         private void OnLoginFailure(string errorReport)
@@ -87,7 +95,8 @@ namespace InterfaceAdapters.Presentation.TitleSceen
         }
 
         // Limpia los inputs de inicio de sesión
-        private void CleanInputsSesion(){
+        private void CleanInputsSesion()
+        {
             loginInputField.text = "";
             passwordInputSesion.text = "";
         }
@@ -101,7 +110,7 @@ namespace InterfaceAdapters.Presentation.TitleSceen
                 return;
             }
 
-            _playFabService.RegisterWithEmail(
+            _userLoginUseCase.RegisterWithEmail(
                 nameInputRegister.text, 
                 emailInputSesionRegister.text, 
                 passwordInputRegister.text, 
@@ -128,7 +137,8 @@ namespace InterfaceAdapters.Presentation.TitleSceen
         }
 
         // Limpia los inputs de registro
-        private void CleanInputsRegister(){
+        private void CleanInputsRegister()
+        {
             nameInputRegister.text = "";
             emailInputSesionRegister.text = "";
             passwordInputRegister.text = "";
@@ -142,7 +152,11 @@ namespace InterfaceAdapters.Presentation.TitleSceen
 
             if (IsValidEmail(email))
             {
-                _playFabService.RecoverPassword(email, OnRecoverPasswordSuccess, OnRecoverPasswordFailure);
+                _userLoginUseCase.RecoverPassword(
+                    email, 
+                    OnRecoverPasswordSuccess, 
+                    OnRecoverPasswordFailure
+                );
             }
             else
             {

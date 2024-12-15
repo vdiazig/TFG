@@ -1,5 +1,6 @@
 using UnityEngine;
 
+using Entities.Types;
 using InterfaceAdapters.Managers;
 using InterfaceAdapters.Interfaces;
 using UseCases;
@@ -19,6 +20,7 @@ namespace InterfaceAdapters.Presentation.TitleSceen
 
         private void Start()
         {
+            _managerUser = FindObjectOfType<ManagerUser>();
             _exitGameUseCase = new ExitGameUseCase(_managerUser);
             _notification = NotificationManager.Instance; 
 
@@ -37,7 +39,24 @@ namespace InterfaceAdapters.Presentation.TitleSceen
             if (_managerUser.IsUserLoggedIn())
             {
                 Debug.Log("Loading game....");
-                LoadGameScene();
+
+                // Llamar a LoadItems para cargar los datos del usuario antes de cargar la escena
+                _managerUser.LoadItems(
+                    // En caso de éxito
+                    () => 
+                    {
+                        Debug.Log("Player data loaded successfully.");
+                        LoadGameScene();
+                    },
+
+                    // En caso de error
+                    error =>
+                    {
+                        var notification = NotificationManager.Instance;
+                        notification.NotificationUp($"Error loading player data: {error}", NotificationType.Error);
+                        Debug.LogError($"Error loading player data: {error}");
+                    }
+                );
             }
             else
             {
@@ -50,10 +69,7 @@ namespace InterfaceAdapters.Presentation.TitleSceen
         private void LoadGameScene()
         {
             _notification.NotificationClean();
-            ManagerScenes.Instance.LoadScene("test2", true, () => 
-            {
-                Debug.Log("Game scene exp1-01 loaded.");
-            });
+            ManagerScenes.Instance.LoadScene("Base", false);
         }
 
         // Mostrar panel de sesion y login

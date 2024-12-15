@@ -1,6 +1,7 @@
 using Unity.Mathematics;
 using UnityEngine;
 
+using Entities.Types;
 using InterfaceAdapters.Presentation.Player;
 
 namespace InterfaceAdapters.Managers
@@ -12,11 +13,14 @@ namespace InterfaceAdapters.Managers
         [SerializeField] private bool isScene2D;
         [SerializeField] private GameObject playerPrefab;
         [SerializeField] private GameObject containerPlayer;
+        [SerializeField] private ManagerUser managerUser; 
         
 
 
         private void Awake()
         {
+            managerUser = FindObjectOfType<ManagerUser>();
+            
             // Instanciar al jugador
             GameObject playerInstance = Instantiate(playerPrefab, playerStartPosition, quaternion.identity);
             playerInstance.transform.SetParent(containerPlayer.transform);
@@ -27,10 +31,23 @@ namespace InterfaceAdapters.Managers
         }
 
 
-        public void HandleSceneChange(string nameScene)
+        public void HandleSceneChange(string nameScene, bool HUD)
         {
-            ManagerScenes.Instance.LoadScene(nameScene, false);
+            managerUser.AddCollectedItemsToTotal(); // Agrega los ítems recolectados a la lista total
+            managerUser.SaveItems(
+                // En caso de éxito
+                () => ManagerScenes.Instance.LoadScene(nameScene, HUD),
+                
+                // En caso de error
+                error =>
+                {
+                    var notification = NotificationManager.Instance;
+                    notification.NotificationUp($"Error saving data: {error}", NotificationType.Error);
+                }
+            );
         }
+
+
     }
 
 }

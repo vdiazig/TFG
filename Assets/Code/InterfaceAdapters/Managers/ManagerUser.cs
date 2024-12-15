@@ -2,12 +2,14 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System.Linq;
+
 
 using Entities.Items;
 using Entities.Types;
 using Entities.Class;
+using UseCases.Services;
 using Infraestructure.Services;
-using InterfaceAdapters.Interfaces;
 using InterfaceAdapters.Presentation.HUD;
 using InterfaceAdapters.Presentation.Player;
 
@@ -19,6 +21,8 @@ namespace InterfaceAdapters.Managers
         private IPlayFabService _playFabService, IPlayerStats;
 
         [Header("User Session Info")]
+        [SerializeField] private UserProfile profileUser;
+            public UserProfile ProfileUser => profileUser;
         [SerializeField] private bool _userSesion; // Indica si hay sesión activa
         [SerializeField] private string _displayName;
         [SerializeField] private string _email;
@@ -32,6 +36,11 @@ namespace InterfaceAdapters.Managers
         [SerializeField] private float currentEnergy;
         [SerializeField] private float maxOtherValue = 100; 
         [SerializeField] private float currentOtherValue;
+
+
+        [Header("Items collected")]
+        [SerializeField] private List<NewItem> listTotalItems;
+        [SerializeField] private List<NewItem> listCollectedItems;
 
 
         [Header("Managers and Objects")]
@@ -50,9 +59,7 @@ namespace InterfaceAdapters.Managers
         [SerializeField]private AttackPlayerType attackPlayer;
         public AttackPlayerType AttackPlayer => attackPlayer;
 
-        [Header("Items collected")]
-        [SerializeField] private List<NewItem> listCollectedItems;
-
+        
         private void Start()
         {
             _playFabService = new PlayFabService(); 
@@ -60,7 +67,7 @@ namespace InterfaceAdapters.Managers
             currentHealth = maxHealth;
             currentEnergy = maxEnergy;
 
-            UpdateHUD();
+            //UpdateHUD();
         }
 
         // -------- SESIÓN DE USUARIO -----
@@ -83,11 +90,13 @@ namespace InterfaceAdapters.Managers
 
         public void SetUserProfile(UserProfile profile)
         {
+            profileUser = profile;
             _userSesion = true;
             _displayName = profile.DisplayName;
             _email = profile.Email;
             _playFabId = profile.PlayFabId;
         }
+
 
         private void ClearSessionData()
         {
@@ -162,9 +171,24 @@ namespace InterfaceAdapters.Managers
         }
 
         // Se llama al cargar una escena desde ManagerScenes para construir las opciones del HUD
-        public void SetupHUD()
+        public void SetupHUD(HUDController HUDcontroller, GameObject contSelectAttack)
         {   
+            HUD = HUDcontroller;
+            contentSelectAttack = contSelectAttack;
+
+            // Resetea el joystick
+            HUD.ResetJoystick();
+
+            // Busca el player en la nueva escena
+            player = GameObject.FindWithTag("Player").GetComponent<ThirdPersonController>();
+
             prefabActualAttack = prefabActualAttack == null ? defaultPrefabAttack : prefabActualAttack;
+
+            // Elimina el contenido actual de contentSelectAttack
+            foreach (Transform child in contentSelectAttack.transform)
+            {
+                Destroy(child.gameObject); // Destruye cada hijo
+            }
 
             // Genera opciones de ataque en el HUD
             foreach (var weapon in ItemManagerService.AttackObjectsPrefabs)
@@ -187,9 +211,7 @@ namespace InterfaceAdapters.Managers
             // Actualiza barras del HUD
             UpdateHUD();
 
-            // Busca el player en la nueva escena
-            player = GameObject.FindWithTag("Player").GetComponent<ThirdPersonController>();
-
+            
             // Actualiza el ataque actual o por defecto
             updateSelectAttack(prefabActualAttack);
 
@@ -198,12 +220,16 @@ namespace InterfaceAdapters.Managers
         // Selección de ataques en el player y en el HUD
         public void updateSelectAttack(GameObject prefabAttack)
         {
+            if (player != null)
+            {
             prefabActualAttack = prefabAttack;
             WeaponBase weapon = prefabActualAttack.GetComponent<WeaponBase>();
-            
+
             attackPlayer = player.ActiveAttack = weapon.AttackPlayer;
             interaction = player.Interaction = weapon.Interaction;
             player.InstantiateWeapon(prefabActualAttack, weapon.RightHand);
+            }
+
         }
         
 
@@ -227,7 +253,105 @@ namespace InterfaceAdapters.Managers
 
         // -------- SINCRONIZAR CON PLAYFAB TODOS LOS DATOS DE AQUÍ -----
 
-        // Guardar listCollectedItems
+         // Carga los ítems desde PlayFab y actualiza listTotalItems
+        public void LoadItems(Action onSuccess, Action<string> onFailure)
+        {
+            _playFabService.LoadPlayerData(
+                data =>
+                {
+                    if (data.ContainsKey("Items"))
+                    {
+                        var itemsString = data["Items"]; // Recupera los ítems como JSON
+                        listTotalItems = JsonUtility.FromJson<ItemListWrapper>(itemsString).items; // Deserializa
+                        Debug.Log("Items loaded successfully.");
+                        onSuccess?.Invoke(); // Llama al callback de éxito
+                    }
+                    else
+                    {
+                        Debug.LogWarning("No items found in PlayFab.");
+                        onSuccess?.Invoke(); // Llama al callback de éxito aunque no haya datos
+                    }
+                },
+                error =>
+                {
+                    Debug.LogError($"Error loading items: {error}");
+                    onFailure?.Invoke(error); // Llama al callback de error con el mensaje correspondiente
+                }
+            );
+        }
+
+
+         // Guarda los ítems actuales en PlayFab
+        public void SaveItems(Action onSuccess = null, Action<string> onFailure = null)
+        {
+            var data = new Dictionary<string, string>
+            {
+                { "Items", JsonUtility.ToJson(new ItemListWrapper { items = listTotalItems }) }
+            };
+
+            _playFabService.SavePlayerData(data,
+                () =>
+                {
+                    Debug.Log("Items saved successfully.");
+                    onSuccess?.Invoke(); // Llama al callback de éxito si está definido
+                },
+                error =>
+                {
+                    Debug.LogError($"Error saving items: {error}");
+                    onFailure?.Invoke(error); // Llama al callback de error si está definido
+                }
+            );
+        }
+
+
+
+        // Combina listCollectedItems con listTotalItems
+        public void AddCollectedItemsToTotal()
+        {
+            foreach (var collectedItem in listCollectedItems)
+            {
+                var existingItem = listTotalItems.FirstOrDefault(item => item.id == collectedItem.id);
+                if (existingItem != null)
+                {
+                    existingItem.quantity += collectedItem.quantity; // Suma la cantidad
+                }
+                else
+                {
+                    listTotalItems.Add(new NewItem(collectedItem.id, collectedItem.quantity)); // Añade el nuevo ítem
+                }
+            }
+
+            Debug.Log("Collected items added to total.");
+        }
+
+        // Resta ítems usados
+        public bool UseItems(int id, int quantity)
+        {
+            var existingItem = listTotalItems.FirstOrDefault(item => item.id == id);
+            if (existingItem != null && existingItem.quantity >= quantity)
+            {
+                existingItem.quantity -= quantity; // Resta la cantidad
+                if (existingItem.quantity == 0)
+                {
+                    listTotalItems.Remove(existingItem); // Elimina el ítem si llega a 0
+                }
+                SaveItems(); // Guarda el estado actualizado
+                Debug.Log($"Used {quantity} of item {id}. Remaining: {existingItem.quantity}");
+                return true;
+            }
+            else
+            {
+                Debug.LogWarning("Not enough items to use.");
+                return false;
+            }
+        }
+
+        // Devuelve los ítems totales del usuario
+        public List<NewItem> GetTotalItems()
+        {
+            return listTotalItems;
+        }
+
 
     }
 }

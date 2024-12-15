@@ -151,7 +151,7 @@ MonoBehaviour:
   nameItem: Lata 150gr
   economicValue: 2
   quantity: 1
-  sprite: {fileID: 21300000, guid: 7945e8a3efc229e4b9e2c47a739e6faf, type: 3}
+  itemSprite: {fileID: 21300000, guid: 7945e8a3efc229e4b9e2c47a739e6faf, type: 3}
   audioClip: {fileID: 8300000, guid: 844b6463331bfef429538ef755fead59, type: 3}
 --- !u!65 &6944985448538392147
 BoxCollider:
