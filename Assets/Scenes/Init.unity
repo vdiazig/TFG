@@ -7093,6 +7093,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   managerUser: {fileID: 2199316163498027471}
+  explorationData: []
   activateHUD: 0
   canvasHUD: {fileID: 0}
   gamePause: {fileID: 0}
@@ -7146,16 +7147,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1f102b28d44af24c92468b67b02887d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  managerScenes: {fileID: 25646573623614476}
   _userSesion: 0
   _displayName: 
   _email: 
   _playFabId: 
-  maxHealth: 100
-  currentHealth: 0
-  maxEnergy: 100
-  currentEnergy: 0
-  maxOtherValue: 100
-  currentOtherValue: 0
   listTotalItems: []
   listCollectedItems: []
   prefabAttackHUD: {fileID: 3070469745268157928, guid: 06be305623fd03543890605fd0b81b43, type: 3}

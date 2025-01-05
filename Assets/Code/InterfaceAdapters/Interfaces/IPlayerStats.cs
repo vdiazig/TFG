@@ -1,12 +1,13 @@
-namespace InterfaceAdapters.Interfaces
+public interface IPlayerStats
 {
-    public interface IPlayerStats
-    {
-        void TakeDamage(float amount);
-        void Heal(float amount);
-        void UseEnergy(float amount);
-        void RegainEnergy(float amount);
-        void DecreaseOtherValue(float amount);
-        void IncreaseOtherValue(float amount);
-    }
+    float MaxHealth { get; }
+    float CurrentHealth { get; set; }
+    float MaxEnergy { get; }
+    float CurrentEnergy { get; set; }
+    float MaxOtherValue { get; }
+    float CurrentOtherValue { get; set; }
+
+    void Life(float amount);
+    void Energy(float amount);
+    void OtherValue(float amount);
 }

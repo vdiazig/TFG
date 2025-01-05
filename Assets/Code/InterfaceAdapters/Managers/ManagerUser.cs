@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Linq;
 
-
 using Entities.Items;
 using Entities.Types;
 using Entities.Class;
@@ -12,6 +11,8 @@ using UseCases.Services;
 using Infraestructure.Services;
 using InterfaceAdapters.Presentation.HUD;
 using InterfaceAdapters.Presentation.Player;
+using InterfaceAdapters.Interfaces;
+using InterfaceAdapters.Adapters;
 
 
 namespace InterfaceAdapters.Managers
@@ -19,23 +20,18 @@ namespace InterfaceAdapters.Managers
     public class ManagerUser : MonoBehaviour
     {
         private IPlayFabService _playFabService, IPlayerStats;
+        private INotification _notification;  
+        [SerializeField] ManagerScenes managerScenes;
 
-        [Header("User Session Info")]
+        [Header("Player Info")]
         [SerializeField] private UserProfile profileUser;
             public UserProfile ProfileUser => profileUser;
         [SerializeField] private bool _userSesion; // Indica si hay sesión activa
         [SerializeField] private string _displayName;
         [SerializeField] private string _email;
         [SerializeField] private string _playFabId;
-
-
-        [Header("Player Stats")]
-        [SerializeField] private float maxHealth = 100;
-        [SerializeField] private float currentHealth;
-        [SerializeField] private float maxEnergy = 100;
-        [SerializeField] private float currentEnergy;
-        [SerializeField] private float maxOtherValue = 100; 
-        [SerializeField] private float currentOtherValue;
+        [SerializeField] private IPlayerStats playerStats = new PlayerStatsData();
+        public IPlayerStats PlayerStats => playerStats;
 
 
         [Header("Items collected")]
@@ -63,11 +59,8 @@ namespace InterfaceAdapters.Managers
         private void Start()
         {
             _playFabService = new PlayFabService(); 
+            _notification = NotificationManager.Instance; 
 
-            currentHealth = maxHealth;
-            currentEnergy = maxEnergy;
-
-            //UpdateHUD();
         }
 
         // -------- SESIÓN DE USUARIO -----
@@ -109,65 +102,51 @@ namespace InterfaceAdapters.Managers
 
 
         // -------- BARRAS DE VIDA Y ENERGÍA -----
-    // Métodos para Vida
-        public void TakeDamage(float amount)
+        // Modifica la barra de vida y detecta vida agotada
+        public void Life(float amount)
         {
-            currentHealth -= amount;
-            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+            playerStats.Life(amount);
             UpdateHUD();
 
-            if (currentHealth <= 0)
+            if (playerStats.CurrentHealth <= 0)
             {
                 Debug.Log("Player has died!");
-                // Aquí puedes manejar la lógica de muerte
+
+                // Muestra la notificación de Game Over
+                _notification.NotificationScreen(
+                    "No te queda energía para continuar.",                
+                    null,                       
+                    "Descansa y continua explorando mas adelante", 
+                    () => managerScenes.LoadScene("Base", false)
+                );
             }
         }
 
-        public void Heal(float amount)
+        // Modifica la barra de energía principal
+        public void Energy(float amount)
         {
-            currentHealth += amount;
-            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+            playerStats.Energy(amount);
             UpdateHUD();
         }
 
-        // Métodos para Energía
-        public void UseEnergy(float amount)
+        // Modifica la barra de energía secundaria
+        public void OtherValue(float amount)
         {
-            currentEnergy -= amount;
-            currentEnergy = Mathf.Clamp(currentEnergy, 0, maxEnergy);
+            playerStats.OtherValue(amount);
             UpdateHUD();
         }
 
-        public void RegainEnergy(float amount)
-        {
-            currentEnergy += amount;
-            currentEnergy = Mathf.Clamp(currentEnergy, 0, maxEnergy);
-            UpdateHUD();
-        }
 
-        // Métodos para la Tercera Barra
-        public void DecreaseOtherValue(float amount)
-        {
-            currentOtherValue -= amount;
-            currentOtherValue = Mathf.Clamp(currentOtherValue, 0, maxOtherValue);
-            UpdateHUD();
-        }
 
-        public void IncreaseOtherValue(float amount)
-        {
-            currentOtherValue += amount;
-            currentOtherValue = Mathf.Clamp(currentOtherValue, 0, maxOtherValue);
-            UpdateHUD();
-        }
-
-        
         // -------- CARGA INICIAL DEL HUD -----
         // Actualización de las barras en el HUD
         private void UpdateHUD()
         {
-            HUD.UpdateLifeBar(currentHealth, maxHealth);
-            HUD.UpdateEnergyBar(currentEnergy, maxEnergy);
-            HUD.UpdateOtherBar(currentOtherValue, maxOtherValue); // Actualiza la tercera barra
+            if (HUD != null){
+                HUD.UpdateLifeBar(playerStats.CurrentHealth, playerStats.MaxHealth);
+                HUD.UpdateEnergyBar(playerStats.CurrentEnergy, playerStats.MaxEnergy);
+                HUD.UpdateOtherBar(playerStats.CurrentOtherValue, playerStats.MaxOtherValue);
+            }
         }
 
         // Se llama al cargar una escena desde ManagerScenes para construir las opciones del HUD
@@ -233,6 +212,7 @@ namespace InterfaceAdapters.Managers
         }
         
 
+
         // -------- NUEVOS ITEM TEMPORALES CONSEGUIDOS -----
         public void AddNewItem(int id, int quantity)
         {
@@ -251,56 +231,68 @@ namespace InterfaceAdapters.Managers
         }
 
 
-        // -------- SINCRONIZAR CON PLAYFAB TODOS LOS DATOS DE AQUÍ -----
 
-         // Carga los ítems desde PlayFab y actualiza listTotalItems
-        public void LoadItems(Action onSuccess, Action<string> onFailure)
+        // -------- SINCRONIZAR DATOS CON PLAYFAB -----
+        // Guardado de datos
+        public void SaveData(Action onSuccess = null, Action<string> onFailure = null)
         {
-            _playFabService.LoadPlayerData(
-                data =>
-                {
-                    if (data.ContainsKey("Items"))
-                    {
-                        var itemsString = data["Items"]; // Recupera los ítems como JSON
-                        listTotalItems = JsonUtility.FromJson<ItemListWrapper>(itemsString).items; // Deserializa
-                        Debug.Log("Items loaded successfully.");
-                        onSuccess?.Invoke(); // Llama al callback de éxito
-                    }
-                    else
-                    {
-                        Debug.LogWarning("No items found in PlayFab.");
-                        onSuccess?.Invoke(); // Llama al callback de éxito aunque no haya datos
-                    }
-                },
-                error =>
-                {
-                    Debug.LogError($"Error loading items: {error}");
-                    onFailure?.Invoke(error); // Llama al callback de error con el mensaje correspondiente
-                }
-            );
-        }
-
-
-         // Guarda los ítems actuales en PlayFab
-        public void SaveItems(Action onSuccess = null, Action<string> onFailure = null)
-        {
-            var data = new Dictionary<string, string>
+            var serializedItems = JSONDataAdapter.SerializeItems(listTotalItems);
+            var serializedStats = JSONDataAdapter.SerializePlayerStats((PlayerStatsData)playerStats);
+            var serializedExplorationData = JSONDataAdapter.SerializeExplorationData(
+                    managerScenes.GetAllExplorationAreas()
+                );
+            var gameData = new Dictionary<string, string>
             {
-                { "Items", JsonUtility.ToJson(new ItemListWrapper { items = listTotalItems }) }
+                { "Items", serializedItems },
+                { "Stats", serializedStats },
+                { "Exploration", serializedExplorationData }
             };
 
-            _playFabService.SavePlayerData(data,
+            _playFabService.SavePlayerData(gameData,
                 () =>
                 {
-                    Debug.Log("Items saved successfully.");
-                    onSuccess?.Invoke(); // Llama al callback de éxito si está definido
+                    Debug.Log("Game data saved successfully.");
+                    onSuccess?.Invoke();
                 },
                 error =>
                 {
-                    Debug.LogError($"Error saving items: {error}");
-                    onFailure?.Invoke(error); // Llama al callback de error si está definido
-                }
-            );
+                    Debug.LogError($"Error saving game data: {error}");
+                    onFailure?.Invoke(error);
+                });
+        }
+
+        // Carga de datos
+        public void LoadData(Action onSuccess = null, Action<string> onFailure = null)
+        {
+            _playFabService.LoadPlayerData(
+                gameData =>
+                {
+                    if (gameData.ContainsKey("Items"))
+                    {
+                        listTotalItems = JSONDataAdapter.DeserializeItems(gameData["Items"]);
+                        Debug.Log("Items loaded successfully.");
+                    }
+
+                    if (gameData.ContainsKey("Stats"))
+                    {
+                        playerStats = JSONDataAdapter.DeserializePlayerStats(gameData["Stats"]);
+                        Debug.Log("Player stats loaded successfully.");
+                    }
+
+                    if (gameData.ContainsKey("Exploration"))
+                    {
+                        var explorationData = JSONDataAdapter.DeserializeExplorationData(gameData["Exploration"]);
+                        managerScenes.UpdateExplorationData(explorationData); 
+                        Debug.Log("Exploration data loaded successfully.");
+                    }
+
+                    onSuccess?.Invoke();
+                },
+                error =>
+                {
+                    Debug.LogError($"Error loading game data: {error}");
+                    onFailure?.Invoke(error);
+                });
         }
 
 
@@ -320,7 +312,7 @@ namespace InterfaceAdapters.Managers
                     listTotalItems.Add(new NewItem(collectedItem.id, collectedItem.quantity)); // Añade el nuevo ítem
                 }
             }
-
+            listCollectedItems.Clear();
             Debug.Log("Collected items added to total.");
         }
 
@@ -335,7 +327,7 @@ namespace InterfaceAdapters.Managers
                 {
                     listTotalItems.Remove(existingItem); // Elimina el ítem si llega a 0
                 }
-                SaveItems(); // Guarda el estado actualizado
+                SaveData(); // Guarda el estado actualizado
                 Debug.Log($"Used {quantity} of item {id}. Remaining: {existingItem.quantity}");
                 return true;
             }

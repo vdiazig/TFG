@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
+
+using Entities.Class;
 using Infraestructure.Services;
 using InterfaceAdapters.Interfaces;
 using InterfaceAdapters.Presentation.HUD;
-using Unity.VisualScripting;
 
 namespace InterfaceAdapters.Managers
 {
@@ -12,7 +14,10 @@ namespace InterfaceAdapters.Managers
     {
         public static ManagerScenes Instance { get; private set; } 
         [SerializeField] private ManagerUser managerUser;
-        //[SerializeField] public GameObject PlayerPrefab { get; private set; }
+
+        [Header("Areas data")]
+        [SerializeField] private List<ExplorationData> explorationData = new List<ExplorationData>();
+
 
         [Header("HUD")]
         [SerializeField][Tooltip("Only for control")] private bool activateHUD;
@@ -33,14 +38,16 @@ namespace InterfaceAdapters.Managers
 
             _sceneManager = new SceneManagerService(); // Inyección de dependencia
 
-
             // Suscribir al evento SceneManager.sceneLoaded
             SceneManager.sceneLoaded += HandleSceneLoaded;
+            _sceneManager = new SceneManagerService(); 
         }
         void Start(){
             _notification = NotificationManager.Instance;
         }
 
+
+        // -------- GESTIÓN DE ESCENAS -----
         private void OnDestroy()
         {
             // Desuscribir para evitar problemas si el objeto es destruido
@@ -103,7 +110,7 @@ namespace InterfaceAdapters.Managers
         }
             
        
-        // Pausa el tiempo de juego
+        // -------- PAUSA DE JUEGO -----
         public void TogglePauseGame()
         {
             if (Time.timeScale == 1f)
@@ -125,6 +132,69 @@ namespace InterfaceAdapters.Managers
             TogglePauseGame();
         }
         
+
+
+    // -------- DATOS DE EXPLORACIÓN -----
+        // Agregar nueva área de exploración
+        public void AddExplorationArea(string id, bool isLocked = true, bool isCompleted = false)
+        {
+            var existingArea = explorationData.Find(data => data.Id == id);
+            if (existingArea == null)
+            {
+                var newArea = new ExplorationData(id, isLocked, isCompleted);
+                explorationData.Add(newArea);
+                Debug.Log($"Exploration area added: {id} (Locked: {isLocked}, Completed: {isCompleted})");
+            }
+            else
+            {
+                Debug.LogWarning($"Exploration area with id {id} already exists.");
+            }
+        }
+
+        // Alternar estado de bloqueo del área
+        public void ToggleAreaLock(string id)
+        {
+            var area = explorationData.Find(data => data.Id == id);
+            if (area != null)
+            {
+                area.ChangeLock();
+                Debug.Log($"Toggled lock for area: {id}");
+            }
+            else
+            {
+                Debug.LogError($"Area with id {id} not found.");
+            }
+        }
+
+        // Alternar estado de completado del área
+        public void ToggleAreaComplete(string id)
+        {
+            var area = explorationData.Find(data => data.Id == id);
+            if (area != null)
+            {
+                area.ChangeComplete();
+                Debug.Log($"Toggled completion for area: {id}");
+            }
+            else
+            {
+                Debug.LogError($"Area with id {id} not found.");
+            }
+        }
+
+        // Obtener todas las áreas de exploración
+        public List<ExplorationData> GetAllExplorationAreas()
+        {
+            return new List<ExplorationData>(explorationData); // Devuelve una copia de la lista
+        }
+
+        // Actualiza las áreas de exploración desde una lista externa
+        public void UpdateExplorationData(List<ExplorationData> newExplorationData)
+        {
+            explorationData.Clear();
+            explorationData.AddRange(newExplorationData);
+        }
+
+
 
     }
 }

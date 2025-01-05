@@ -34,7 +34,7 @@ namespace InterfaceAdapters.Managers
         public void HandleSceneChange(string nameScene, bool HUD)
         {
             managerUser.AddCollectedItemsToTotal(); // Agrega los ítems recolectados a la lista total
-            managerUser.SaveItems(
+            managerUser.SaveData(
                 // En caso de éxito
                 () => ManagerScenes.Instance.LoadScene(nameScene, HUD),
                 

@@ -41,7 +41,7 @@ namespace InterfaceAdapters.Presentation.TitleSceen
                 Debug.Log("Loading game....");
 
                 // Llamar a LoadItems para cargar los datos del usuario antes de cargar la escena
-                _managerUser.LoadItems(
+                _managerUser.LoadData(
                     // En caso de éxito
                     () => 
                     {

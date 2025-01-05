@@ -18,11 +18,11 @@ namespace UseCases.Services
         void RegisterWithEmail(string username, string emailInputSesion, string passwordInputSesion, System.Action onSuccess, System.Action<string> onFailure);
         void RecoverPassword(string email, System.Action onSuccess, System.Action<string> onFailure);
 
-        //______ Interfaz guardado de datos
+        //______ Interfaz acceso a datos de usuario
         void LoadPlayerData(Action<Dictionary<string, string>> onSuccess, Action<string> onFailure);
         void SavePlayerData(Dictionary<string, string> data, Action onSuccess, Action<string> onFailure);
-        
-        
+
+
     }
 }
 

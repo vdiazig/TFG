@@ -49,6 +49,8 @@ namespace InterfaceAdapters.Presentation.Base
             // Cargar datos de usuario
             LoadUserData();
             LoadUserItems();
+
+            managerUser.Life(100);
         }
 
         private void LoadUserData()
