@@ -16,6 +16,8 @@ namespace InterfaceAdapters.Presentation.TitleSceen
 
         [SerializeField] public GameObject loginObject;
         [SerializeField] public GameObject titleObject;
+        [SerializeField] private AudioClip buttonClip;
+        [SerializeField] private AudioSource audioButtons;
 
 
         private void Start()
@@ -23,6 +25,9 @@ namespace InterfaceAdapters.Presentation.TitleSceen
             _managerUser = FindObjectOfType<ManagerUser>();
             _exitGameUseCase = new ExitGameUseCase(_managerUser);
             _notification = NotificationManager.Instance; 
+            audioButtons = gameObject.AddComponent<AudioSource>();
+            audioButtons.playOnAwake = false;
+            audioButtons.clip = buttonClip;
 
         }
 
@@ -78,5 +83,12 @@ namespace InterfaceAdapters.Presentation.TitleSceen
             titleObject.SetActive(false);
             loginObject.SetActive(true);
         }
+
+        // Sonido de botones
+        public void PlayButton()
+        {
+            audioButtons.Play();
+        }
+
     }
 }

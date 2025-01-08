@@ -19,9 +19,5 @@ namespace InterfaceAdapters.Presentation.Player
             return Physics.CheckSphere(spherePosition, groundRadius, groundMask);
         }
 
-        
-
-
-
     }
 }

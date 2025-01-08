@@ -16,7 +16,7 @@ namespace InterfaceAdapters.Presentation.Player
         private static readonly int JumpTriggerHash = Animator.StringToHash("JumpTrigger");
         private static readonly int IsCrouchingHash = Animator.StringToHash("IsCrouching");
         private static readonly int DodgeTriggerHash = Animator.StringToHash("DodgeTrigger");
-        private static readonly int LifeValueHash = Animator.StringToHash("LifeValue");
+        private static readonly int LifeTriggerHash = Animator.StringToHash("DieTrigger");
         private static readonly int InteractionTypeHash = Animator.StringToHash("InteractionType"); // Animations call to EndInteract
         private static readonly int AttackTypeHash = Animator.StringToHash("AttackType");
         private static readonly int DamageTriggerHash = Animator.StringToHash("DamageTrigger"); // Animation call to EndInteract
@@ -51,7 +51,7 @@ namespace InterfaceAdapters.Presentation.Player
         [SerializeField] private GameObject LeftHandWeapon;
         [SerializeField] private bool isUsing;
         public bool IsUsing => isUsing;
-
+        [SerializeField] private bool isAttack;
 
 
 
@@ -179,9 +179,8 @@ namespace InterfaceAdapters.Presentation.Player
 
                     case InteractionType.Attack:
                         Debug.Log("Attack");
-                        
+                        isAttack = true;
                         InteractionAttack(activeAttack);
-                        
                         break;
                         
                     case InteractionType.Confused:
@@ -246,6 +245,12 @@ namespace InterfaceAdapters.Presentation.Player
             animator.SetInteger(InteractionTypeHash, 0);
             animator.SetInteger(AttackTypeHash, 0);
             isUsing = false;
+            isAttack = false;
+        }
+
+        public bool IsAttack()
+        {
+            return isAttack;
         }
 
 
@@ -307,7 +312,9 @@ namespace InterfaceAdapters.Presentation.Player
             }
         }
     
-       
+       public void PlayerDie(){
+            animator.SetTrigger(LifeTriggerHash); 
+       }
 
     }
 }

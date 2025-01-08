@@ -15,6 +15,7 @@ namespace Entities.Items
         [SerializeField]private bool rightHand;
             public bool RightHand => rightHand;
         [SerializeField]private float damage;
+            public float Damage => damage;
 
         [SerializeField] private bool isUnlocked;
             public bool IsUnlocked => isUnlocked;

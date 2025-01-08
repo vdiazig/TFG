@@ -21,8 +21,8 @@ TagManager:
   - Hazard
   - Light
   - Player
-  - 
-  - 
+  - Projectiles
+  - EnemyDetection
   - 
   - 
   - 

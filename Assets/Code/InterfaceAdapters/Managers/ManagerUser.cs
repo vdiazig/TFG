@@ -32,6 +32,7 @@ namespace InterfaceAdapters.Managers
         [SerializeField] private string _playFabId;
         [SerializeField] private IPlayerStats playerStats = new PlayerStatsData();
         public IPlayerStats PlayerStats => playerStats;
+        private bool isPlayerDead = false;
 
 
         [Header("Items collected")]
@@ -55,7 +56,8 @@ namespace InterfaceAdapters.Managers
         [SerializeField]private AttackPlayerType attackPlayer;
         public AttackPlayerType AttackPlayer => attackPlayer;
 
-        
+
+
         private void Start()
         {
             _playFabService = new PlayFabService(); 
@@ -108,9 +110,13 @@ namespace InterfaceAdapters.Managers
             playerStats.Life(amount);
             UpdateHUD();
 
+            if (isPlayerDead) return;
+
             if (playerStats.CurrentHealth <= 0)
             {
                 Debug.Log("Player has died!");
+                player.PlayerDie();
+                isPlayerDead = true;
 
                 // Muestra la notificación de Game Over
                 _notification.NotificationScreen(
@@ -210,7 +216,6 @@ namespace InterfaceAdapters.Managers
             }
 
         }
-        
 
 
         // -------- NUEVOS ITEM TEMPORALES CONSEGUIDOS -----
