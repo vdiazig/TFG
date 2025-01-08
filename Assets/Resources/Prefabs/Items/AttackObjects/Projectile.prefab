@@ -54,7 +54,7 @@ MonoBehaviour:
   interaction: 1
   attackPlayer: 2
   rightHand: 1
-  damage: 20
+  damage: -20
   isUnlocked: 0
   weaponIcon: {fileID: 0}
   range: 0

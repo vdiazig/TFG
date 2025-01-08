@@ -108,6 +108,7 @@ namespace InterfaceAdapters.Managers
         public void Life(float amount)
         {
             playerStats.Life(amount);
+            Debug.Log(playerStats.CurrentHealth);
             UpdateHUD();
 
             if (isPlayerDead) return;

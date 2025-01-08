@@ -6,7 +6,7 @@ public class loadSceneTest : MonoBehaviour
 
     public AudioSource audioSource;
 
-    private ManagerUser managerUser;
+    public ManagerUser managerUser;
 
     [Header("Damage Settings")]
     [SerializeField] private float damageAmount = 10f; // Cantidad de daño por golpe
@@ -24,6 +24,7 @@ public class loadSceneTest : MonoBehaviour
 
     public void loadTest()
     {
+         
         ManagerScenes.Instance.LoadScene("Area1-02", true, () => 
         {
             Debug.Log("TEST: scene test3 load.");

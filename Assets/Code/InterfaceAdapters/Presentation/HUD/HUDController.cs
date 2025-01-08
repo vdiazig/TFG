@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 using System.Collections;
 
 using Entities.Types;
+using InterfaceAdapters.Managers;
 
 
 namespace InterfaceAdapters.Presentation.HUD
@@ -152,19 +153,26 @@ namespace InterfaceAdapters.Presentation.HUD
 
         }
 
+        // Volver a la base desde el menu pausa
+        public void ReturnToBase()
+        {
+            ManagerScenes.Instance.LoadScene("Base", false);
+        }
+
 
     // --- JOYSTICK ---
-public void ResetJoystick()
-{
-    // Vuelve a colocar el joystick en su posición inicial
-    joystickControl.anchoredPosition = joystickInitialPosition;
+        public void ResetJoystick()
+        {
+            // Vuelve a colocar el joystick en su posición inicial
+            joystickControl.anchoredPosition = joystickInitialPosition;
 
-    // Resetea la dirección del joystick
-    joystickDirection = Vector2.zero;
-}
+            // Resetea la dirección del joystick
+            joystickDirection = Vector2.zero;
+        }
+
         public void OnPointerDown(PointerEventData eventData)
         {
-            // No es necesario implementar aquí a menos que quieras realizar acciones específicas al tocar el joystick
+            // Acciones específicas al tocar el joystick
         }
 
         public void OnDrag(PointerEventData eventData)

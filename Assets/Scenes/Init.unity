@@ -3010,7 +3010,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &855011567
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3044,6 +3044,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 0}
+  managerUser: {fileID: 0}
   damageAmount: 10
 --- !u!114 &855011569
 MonoBehaviour:
