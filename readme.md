@@ -1,4 +1,6 @@
-# **TFG Videojuego**
+# **EcoPlanet**
+## **TFG. Videojuego educativo para el emprendimiento en el ámbito  de la contaminación y el reciclaje.**
+
 
 ## **Descripción General**
 
@@ -18,20 +20,22 @@ Los resultados esperados son una demo funcional que incluya el área para la ges
   [Repositorio en GitHub](https://github.com/vdiazig/TFG.git)
 
 - **Demo del juego**:
-  Disponible en la carpeta Releases del ropositorio en GitHub.  
+  Disponible en la carpeta Releases/PEC4 del repositorio en GitHub o en el siguiente enlace (Permiso de lectura para cuentas de la UOC)
+  [Descargar demo](https://drive.google.com/file/d/1YAQHXmA1B-lgQ7R-KWHSroZTjV2ypVpn/view?usp=drive_link)
 
-- **Video de Presentación en YouTube**:  
-  [Ver Video de Presentación](https://youtu.be/LmymTMK7em8)
-
-- **Descargar Proyecto Completo (incluyendo carpetas temporales. Permiso de lectura para cuentas de la UOC)**:  
+- **Descargar Proyecto Completo**: 
+  (Incluyendo carpetas temporales. Permiso de lectura para cuentas de la UOC)  
   [Descargar Proyecto](https://drive.google.com/drive/folders/1jUVGiyX3MGTcygm-2j9UK0tRGyxM4DO_?usp=sharing)
+
+- **Video Trailer en YouTube**:  
+  [Ver Video trailer](https://youtu.be/9kZx6fWugzI)
 
 ---
 
 ## **Instrucciones de Instalación**
 
 ### **Descargar y Probar el APK**
-1. Descarga el archivo **.apk** desde el repositorio (En carpeta Game - Releases).
+1. Descarga el archivo **.apk** desde el repositorio (En carpeta Game - Releases) o el enlace.
 2. Transfiere el archivo a un dispositivo Android.
 3. Instálar permitiendo origenes desconocidos.
 4. Datos de juego (sin comillas). *Se permite el registro de nuevos usuarios:
@@ -40,7 +44,7 @@ Los resultados esperados son una demo funcional que incluya el área para la ges
 
 ### **Cargar Proyecto en Unity**
 1. Clona el repositorio de GitHub.
-2. Abre el proyecto en Unity (versión 2022.3.46f1).Versión SDK PlayFab 2.205.241108. 
+2. Abre el proyecto en Unity (versión 2022.3.46f1).Versión SDK PlayFab 2.206.241122. 
 3. Explora las escenas incluidas y realiza modificaciones según sea necesario.
 
 ---
@@ -62,7 +66,7 @@ Los resultados esperados son una demo funcional que incluya el área para la ges
   - Implementación de sistema para la carga y guardado de ítems en PlayFab.
 
 - **Sistema de notificaciones**:
-- Sistema para la gestión de notificaciones en todo el juego con 3 tipos diferentes:
+  - Sistema para la gestión de notificaciones en todo el juego con 3 tipos diferentes:
     - A pantalla completa para mensajes relevantes del juego.
     - En la zona superior derecha para nuevos items adquiridos.
     - En la zona superior para mensajes del sistema.
@@ -82,19 +86,22 @@ Los resultados esperados son una demo funcional que incluya el área para la ges
 
 - **Pantalla de título**:
   - Lógica de la pantalla de título.
+  - Carga de datos de usuario desde el servidor.
 
 - **Pantalla del área de gestión de recursos**:
   - Lógica básica del área de gestión. Permite consultar los ítems obtenidos, ver los datos del jugador y el mapa de juego.
+  - Guardado y carga de datos de juego con el servidor.
 
 - **Escena 3D para el enemigo principal**:
-  - Implementación del área 3D sin enemigos.
+  - Implementación del área 3D.
+  - Enemigo principal con animaciones y mecánicas de ataque.
 
 - **Pruebas de Juego en Dispositivos Móviles**:
-  - Segundo prototipo con funciones básicas en formato **.apk**.
+  - Tercer prototipo con funciones básicas en formato **.apk**.
 
 ---
 
-## **Próximos Pasos**
+## **Fases del proyecto**
 
 1. Fase 1:
 - **Zona de exploración**: Incluir la zona jugable de la primera area de exploración.
@@ -111,5 +118,8 @@ Los resultados esperados son una demo funcional que incluya el área para la ges
 
 2. Fase 3:
 - **Enemigo principal**: Mecánicas del enemigo principal.
+- **Sincronización con PlayFab**: Guardado y carga de datos de juego.
+- **Audio**: Música y efectos de sonido.
 - **Optimización**: Mejorar el rendimiento en dispositivos móviles.
 - **Testeo**: Estadísticas de rendimiento y testeo.
+
